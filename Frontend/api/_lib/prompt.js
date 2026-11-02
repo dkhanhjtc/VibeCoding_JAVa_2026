@@ -42,7 +42,7 @@ QUY TẮC CHỌN GÓI:
 
 QUY TẮC VIẾT:
 - headline: một câu ngắn dưới 100 ký tự.
-- reasons: 3 hoặc 4 lý do bằng tiếng Việt đơn giản, gắn với nhu cầu cụ thể của shop, chỉ dùng số liệu có trong danh mục, giải thích thuật ngữ nếu có.
+- reasons: 3 hoặc 4 lý do bằng tiếng Việt đơn giản như đang nói chuyện với chủ shop không biết kỹ thuật, gắn với nhu cầu cụ thể của shop, chỉ dùng số liệu có trong danh mục. Không dùng thuật ngữ như NVMe, WooCommerce, SSL; nếu buộc phải dùng thì giải thích ngay bằng lời đơn giản. Luôn có một lý do nói về chi phí so với ngân sách.
 - domainExtension: "vn" hoặc "com". domainAdvice: một câu lý do chọn đuôi đó, không nêu giá.
 - Không nêu tổng chi phí, hệ thống sẽ tự tính.
 
