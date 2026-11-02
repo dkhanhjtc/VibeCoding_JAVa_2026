@@ -75,7 +75,7 @@ export const HOSTING_PACKAGES = [
     popular: false,
     features: [
       'Ổ cứng 30 GB NVMe cao cấp',
-      'Chịu tải chiến dịch Ads 30.000 - 50.000 khách',
+      'Chịu tải chiến dịch Ads 30.000 - 50.000 khách/tháng',
       'Chạy đồng thời đến 3 website',
       'Sao lưu hàng ngày · Giữ 30 ngày an tâm',
       'Bảo vệ chống DDoS tự động',
@@ -103,7 +103,7 @@ export const HOSTING_PACKAGES = [
       'Ổ cứng 60 GB NVMe Enterprise',
       'Cấu hình Cloud Dedicated vCPU & RAM riêng',
       'Chạy đến 5 website',
-      'Sao lưu 2 lần/ngày · Giữ 30 ngày',
+      'Sao lưu mỗi ngày · Giữ 30 ngày',
       'Hạ tầng cân bằng tải LiteSpeed Web Server',
       'Chuyên viên kỹ thuật riêng đồng hành'
     ]
@@ -154,6 +154,6 @@ export const DOMAIN_PRICING = {
 };
 
 export const getPackageById = (id) => {
-  return HOSTING_PACKAGES.find(pkg => pkg.id === id) || HOSTING_PACKAGES[1]; // default standard
+  return HOSTING_PACKAGES.find(pkg => pkg.id === id); // undefined nếu id không có trong danh mục
 };
 

@@ -12,16 +12,10 @@ export const ComparisonTable = ({
 
   if (!packages || packages.length === 0) return null;
 
-  // Sắp xếp các gói: đảm bảo gói bestMatch nổi bật
-  const sortedPackages = [...packages].sort((a, b) => {
-    if (a.id === bestMatchId) return 0;
-    return a.priceMonthly - b.priceMonthly;
-  });
+  // Sắp xếp các gói theo giá tăng dần để dễ đối chiếu
+  const sortedPackages = [...packages].sort((a, b) => a.priceMonthly - b.priceMonthly);
 
-  const domainExt = domainRecommendation?.extension || '.vn';
-  const domainCost = domainRecommendation?.priceYearly
-    ? `${Number(domainRecommendation.priceYearly).toLocaleString('vi-VN')}đ/năm đầu`
-    : '450.000đ/năm đầu';
+  const domainCost = `${Number(domainRecommendation?.priceYearly).toLocaleString('vi-VN')}đ/năm đầu`;
 
   const rows = [
     {
@@ -59,7 +53,7 @@ export const ComparisonTable = ({
       icon: Globe,
       render: (pkg) => (
         <span className="text-xs text-gray-700">
-          {domainRecommendation?.suggestedDomain || `shop${domainExt}`} ({domainCost})
+          {domainRecommendation?.suggestedDomain} ({domainCost})
         </span>
       )
     },
@@ -96,7 +90,7 @@ export const ComparisonTable = ({
       icon: Clock,
       render: (pkg) => <span className="text-gray-800">{pkg.support}</span>
     }
-  ];
+  ].filter((row) => row.key !== 'domain' || domainRecommendation);
 
   return (
     <div className="w-full bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm mt-10">

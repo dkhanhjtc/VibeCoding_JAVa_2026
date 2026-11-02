@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Check, Globe, ArrowRight, Cpu } from 'lucide-react';
+import { Sparkles, Check, Globe, ArrowRight, Cpu, AlertTriangle } from 'lucide-react';
 import PackageCard from './PackageCard.jsx';
 import ComparisonTable from './ComparisonTable.jsx';
 
@@ -16,6 +16,7 @@ export const RecommendationResult = ({
     alternatives = [],
     headline,
     reasons = [],
+    budgetNote,
     domainRecommendation,
     costSummary
   } = recommendationData;
@@ -71,6 +72,14 @@ export const RecommendationResult = ({
           </div>
         </div>
 
+        {/* Cảnh báo khi gói tối ưu vượt ngân sách */}
+        {budgetNote && (
+          <div role="alert" className="mt-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-start gap-2.5 text-xs sm:text-sm text-amber-900">
+            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <p className="leading-snug">{budgetNote.message}</p>
+          </div>
+        )}
+
         {/* Lý do AI khuyên dùng */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
@@ -89,9 +98,9 @@ export const RecommendationResult = ({
             </ul>
           </div>
 
-          {/* Lời khuyên tên miền đi kèm (.vn hay .com) */}
-          {domainRecommendation && (
-            <div className="p-5 rounded-2xl bg-gray-50/70 border border-gray-200 flex flex-col justify-between">
+          {/* Lời khuyên tên miền đi kèm (.vn hay .com) và tổng chi phí */}
+          <div className="p-5 rounded-2xl bg-gray-50/70 border border-gray-200 flex flex-col justify-between">
+            {domainRecommendation && (
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Globe className="w-4 h-4 text-[#111827]" />
@@ -113,17 +122,19 @@ export const RecommendationResult = ({
                   {domainRecommendation.advice}
                 </p>
               </div>
+            )}
 
-              {costSummary && (
-                <div className="mt-4 pt-3 border-t border-gray-200/80 flex items-center justify-between text-xs">
-                  <span className="text-gray-500">Ước tính tổng năm đầu (Hosting + Tên miền):</span>
-                  <span className="font-extrabold text-[#111827] text-sm">
-                    {Number(costSummary.totalFirstYear).toLocaleString('vi-VN')}đ
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
+            {costSummary && (
+              <div className={`flex items-center justify-between text-xs ${domainRecommendation ? 'mt-4 pt-3 border-t border-gray-200/80' : ''}`}>
+                <span className="text-gray-500">
+                  {domainRecommendation ? 'Ước tính tổng năm đầu (Hosting + Tên miền):' : 'Ước tính tổng năm đầu (Hosting):'}
+                </span>
+                <span className="font-extrabold text-[#111827] text-sm">
+                  {Number(costSummary.totalFirstYear).toLocaleString('vi-VN')}đ
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

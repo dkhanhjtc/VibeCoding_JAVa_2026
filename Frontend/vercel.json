@@ -1,0 +1,8 @@
+{
+  "functions": {
+    "api/analyze.js": { "maxDuration": 20 }
+  },
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}

@@ -5,119 +5,132 @@
 
 import { HOSTING_PACKAGES, DOMAIN_PRICING, getPackageById } from './packages.js';
 
+// minId: gói nhỏ nhất còn chịu được lượng khách; comfortId: gói nên dùng nếu ngân sách cho phép
+export const TRAFFIC_TIERS = {
+  '<5k': { label: 'dưới 5.000', minId: 'entry', comfortId: 'entry' },
+  '5k-20k': { label: '5.000 - 20.000', minId: 'standard', comfortId: 'standard' },
+  '20k-100k': { label: '20.000 - 100.000', minId: 'pro', comfortId: 'turbo' },
+  '>100k': { label: 'trên 100.000', minId: 'turbo', comfortId: 'enterprise' }
+};
+
+const STORAGE_REASONS = {
+  ecommerce: 'đủ chứa ảnh sản phẩm và dữ liệu đơn hàng của shop',
+  company: 'đủ cho các trang giới thiệu, hình ảnh và hồ sơ công ty',
+  blog: 'đủ cho bài viết và hình ảnh minh họa'
+};
+
+const formatVnd = (value) => Number(value).toLocaleString('vi-VN');
+
+const packageIndex = (id) => HOSTING_PACKAGES.findIndex(pkg => pkg.id === id);
+
+export const getMinimumPackageIndex = (traffic) => {
+  return packageIndex((TRAFFIC_TIERS[traffic] || TRAFFIC_TIERS['5k-20k']).minId);
+};
+
+const pickBestIndex = (traffic, websiteType, budget) => {
+  const tier = TRAFFIC_TIERS[traffic] || TRAFFIC_TIERS['5k-20k'];
+  // Shop bán hàng cần sao lưu hằng ngày và dung lượng ảnh nên tối thiểu là gói Đồng hành
+  const comfortIndex = Math.max(packageIndex(tier.comfortId), websiteType === 'ecommerce' ? 1 : 0);
+  return HOSTING_PACKAGES[comfortIndex].priceMonthly <= budget ? comfortIndex : packageIndex(tier.minId);
+};
+
+const pickAlternatives = (bestIndex, budget) => {
+  const isOverBudget = HOSTING_PACKAGES[bestIndex].priceMonthly > budget;
+  // Vượt ngân sách thì luôn đưa ra gói lớn nhất còn nằm trong ngân sách để chủ shop cân nhắc
+  const affordableIndex = HOSTING_PACKAGES.findLastIndex(pkg => pkg.priceMonthly <= budget);
+  const lowerIndex = isOverBudget && affordableIndex >= 0 ? affordableIndex : bestIndex - 1;
+
+  const candidates = [lowerIndex, bestIndex + 1, bestIndex - 1, bestIndex + 2, bestIndex - 2];
+  const picked = candidates.filter((index, position) => (
+    HOSTING_PACKAGES[index] && index !== bestIndex && candidates.indexOf(index) === position
+  ));
+  return picked.slice(0, 2).map(index => HOSTING_PACKAGES[index]);
+};
+
+export const getBudgetNote = (pkg, budget) => {
+  const gap = pkg.priceMonthly - budget;
+  if (gap <= 0) return null;
+  return {
+    gap,
+    message: `Gói này cao hơn ngân sách ${formatVnd(budget)}đ/tháng của bạn ${formatVnd(gap)}đ/tháng, vì đây là gói nhỏ nhất đủ sức phục vụ lượng khách bạn dự kiến.`
+  };
+};
+
+const toAsciiSlug = (text) => text
+  .toLowerCase()
+  .replace(/đ/g, 'd')
+  .normalize('NFD')
+  .replace(/[̀-ͯ]/g, '')
+  .replace(/[^a-z0-9-]/g, '')
+  .replace(/^-+|-+$/g, '');
+
+// Chỉ giữ phần tên: "www.mayhandmade.vn" -> "mayhandmade"; chưa có ý tưởng thì lấy theo tên shop
+export const normalizeDomainName = (domainIdea = '', shopName = '') => {
+  const nameOnly = domainIdea.trim().toLowerCase().replace(/^www\./, '').split('.')[0];
+  return toAsciiSlug(nameOnly) || toAsciiSlug(shopName) || 'shopcuaban';
+};
+
+const DOMAIN_ADVICE = {
+  vn: 'Vì bạn phục vụ khách hàng tại Việt Nam, đuôi tên miền .vn giúp khách hàng an tâm, tin cậy về nguồn gốc shop.',
+  com: `Đuôi tên miền quốc tế .com có mức phí tiết kiệm (chỉ ${formatVnd(DOMAIN_PRICING.com.priceYearly)}đ/năm đầu), quen thuộc với mọi người dùng internet và dễ nhớ.`
+};
+
+export const buildDomainRecommendation = (formData, extensionKey, advice) => {
+  if (!formData.needsDomain) return null;
+  const pricing = DOMAIN_PRICING[extensionKey];
+  return {
+    suggestedDomain: `${normalizeDomainName(formData.domainIdea, formData.shopName)}${pricing.extension}`,
+    extension: pricing.extension,
+    priceYearly: pricing.priceYearly,
+    renewalYearly: pricing.renewalYearly,
+    advice: advice || DOMAIN_ADVICE[extensionKey]
+  };
+};
+
+export const buildCostSummary = (pkg, domainRecommendation) => ({
+  monthlyHosting: pkg.priceMonthly,
+  yearlyHosting: pkg.priceYearly,
+  yearlyDomain: domainRecommendation?.priceYearly || 0,
+  totalFirstYear: pkg.priceYearly + (domainRecommendation?.priceYearly || 0),
+  totalRenewalYear: pkg.renewalYearly + (domainRecommendation?.renewalYearly || 0)
+});
+
 export const calculateRecommendation = (formData) => {
-  const { websiteType = 'ecommerce', traffic = '5k-20k', budget = 150000, needsDomain = true, domainIdea = '' } = formData;
+  const { websiteType = 'ecommerce', traffic = '5k-20k', budget = 150000, needsDomain = true } = formData;
   const numBudget = Number(budget) || 150000;
+  const tier = TRAFFIC_TIERS[traffic] || TRAFFIC_TIERS['5k-20k'];
 
-  let bestMatchId = 'standard';
-  let altIds = ['entry', 'pro'];
+  const bestIndex = pickBestIndex(traffic, websiteType, numBudget);
+  const bestPackage = HOSTING_PACKAGES[bestIndex];
+  const budgetNote = getBudgetNote(bestPackage, numBudget);
 
-  // Quy tắc dựa trên traffic và websiteType
-  if (traffic === '<5k') {
-    if (numBudget < 90000 || websiteType === 'blog') {
-      bestMatchId = 'entry';
-      altIds = ['standard', 'pro'];
-    } else {
-      bestMatchId = 'standard';
-      altIds = ['entry', 'pro'];
-    }
-  } else if (traffic === '5k-20k') {
-    if (numBudget >= 160000 && websiteType === 'ecommerce') {
-      bestMatchId = 'standard';
-      altIds = ['entry', 'pro'];
-    } else {
-      bestMatchId = 'standard';
-      altIds = ['entry', 'pro'];
-    }
-  } else if (traffic === '20k-100k') {
-    if (numBudget >= 250000) {
-      bestMatchId = 'turbo';
-      altIds = ['pro', 'standard'];
-    } else {
-      bestMatchId = 'pro';
-      altIds = ['standard', 'turbo'];
-    }
-  } else { // >100k
-    bestMatchId = numBudget >= 400000 ? 'enterprise' : 'turbo';
-    altIds = ['pro', 'enterprise'].filter(id => id !== bestMatchId);
-    if (altIds.length < 2) altIds = ['standard', 'pro'];
-  }
-
-  const bestPackage = getPackageById(bestMatchId);
-  const alternatives = altIds.map(id => getPackageById(id));
+  const headline = budgetNote
+    ? `Gói ${bestPackage.name} là mức tối thiểu cho lượng khách của bạn`
+    : `Gói ${bestPackage.name} là vừa đủ. Chưa cần gói lớn hơn.`;
 
   // Phân tích lý do bình dân, dễ hiểu cho chủ shop
-  let headline = `${bestPackage.name} là vừa đủ. Chưa cần gói lớn hơn.`;
-  let reasons = [];
-
-  if (bestPackage.id === 'entry') {
-    headline = 'Gói Khởi Đầu là lựa chọn kinh tế nhất cho bạn';
-    reasons = [
-      `Dung lượng 5 GB NVMe vừa vặn cho website giới thiệu hoặc blog cá nhân ít ảnh dung lượng cao.`,
-      `Đáp ứng tốt mức lưu lượng dưới 5.000 khách/tháng mà không lo tốn kém chi phí ban đầu.`,
-      `Tiết kiệm ngân sách tối đa, chỉ ${bestPackage.priceMonthly.toLocaleString('vi-VN')}đ/tháng.`
-    ];
-  } else if (bestPackage.id === 'standard') {
-    reasons = [
-      `Dung lượng 15 GB NVMe thoải mái chứa 300 - 800 sản phẩm và hình ảnh bán hàng sắc nét.`,
-      `Băng thông mượt mà cho 10.000 - 20.000 lượt khách ghé thăm/tháng mà không bị nghẽn giỏ hàng.`,
-      `Sao lưu tự động mỗi ngày (giữ 14 ngày) – lỡ bấm nhầm thao tác vẫn khôi phục dữ liệu tức thì.`,
-      `Hỗ trợ 24/7 trực tuyến giúp giải quyết sự cố kỹ thuật ngay trong đêm khi khách đang đặt hàng.`
-    ];
-  } else if (bestPackage.id === 'pro') {
-    headline = 'Gói Phát Triển đáp ứng hoàn hảo cho shop có lượng truy cập cao';
-    reasons = [
-      `Ổ cứng 30 GB NVMe dư sức cho catalog sản phẩm đồ sộ và các chiến dịch quảng cáo TikTok/Facebook.`,
-      `Chịu tải 30.000 - 50.000 khách đồng thời trong những ngày siêu sale mà web vẫn load dưới 1.5 giây.`,
-      `Cho phép chạy tới 3 website riêng biệt (VD: 1 web bán lẻ + 1 web đại lý + 1 landing page).`
-    ];
-  } else {
-    headline = `Gói ${bestPackage.name} mang lại hạ tầng Cloud mạnh mẽ nhất`;
-    reasons = [
-      `Hạ tầng tài nguyên độc lập, chịu tải trên 100.000 lượt truy cập/tháng.`,
-      `Sao lưu đa điểm liên tục, bảo mật cấp độ doanh nghiệp và chống tấn công DDoS.`,
-      `Chuyên viên hỗ trợ riêng đồng hành kỹ thuật mọi lúc.`
-    ];
+  const reasons = [
+    `Bạn dự kiến ${tier.label} lượt khách mỗi tháng, gói này phục vụ được ${bestPackage.traffic}.`,
+    `Dung lượng ${bestPackage.storage} ${STORAGE_REASONS[websiteType] || STORAGE_REASONS.ecommerce}.`,
+    `Dữ liệu được sao lưu tự động (${bestPackage.backup.toLowerCase()}), lỡ thao tác nhầm vẫn khôi phục được.`
+  ];
+  if (!budgetNote) {
+    reasons.push(`Chi phí ${formatVnd(bestPackage.priceMonthly)}đ/tháng nằm trong ngân sách ${formatVnd(numBudget)}đ/tháng của bạn.`);
   }
 
-  // Lời khuyên tên miền
-  let cleanDomain = (domainIdea || 'shopcuaban').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-  if (!cleanDomain) cleanDomain = 'shopcuaban';
-
-  let domainRecommendation = {
-    suggestedDomain: `${cleanDomain}.vn`,
-    extension: '.vn',
-    priceYearly: DOMAIN_PRICING.vn.priceYearly,
-    renewalYearly: DOMAIN_PRICING.vn.renewalYearly,
-    advice: 'Vì bạn phục vụ khách hàng tại Việt Nam, đuôi tên miền .vn giúp khách hàng an tâm, tin cậy về nguồn gốc shop, đồng thời được Google ưu tiên hiển thị kết quả tìm kiếm tại khu vực VN.'
-  };
-
-  if (websiteType === 'blog' || numBudget < 100000) {
-    domainRecommendation = {
-      suggestedDomain: `${cleanDomain}.com`,
-      extension: '.com',
-      priceYearly: DOMAIN_PRICING.com.priceYearly,
-      renewalYearly: DOMAIN_PRICING.com.renewalYearly,
-      advice: 'Đuôi tên miền quốc tế .com có mức phí cực kỳ tiết kiệm (chỉ 280.000đ/năm đầu), quen thuộc với mọi người dùng internet và dễ nhớ.'
-    };
-  }
+  const extensionKey = websiteType === 'blog' || numBudget < 100000 ? 'com' : 'vn';
+  const domainRecommendation = buildDomainRecommendation({ ...formData, needsDomain }, extensionKey);
 
   return {
     isFallback: true,
     provider: 'RuleEngine v2.0 (HostWise Smart Algorithm)',
     analysisTimestamp: new Date().toISOString(),
-    bestMatch: bestPackage,
-    alternatives: alternatives,
+    bestMatch: getPackageById(bestPackage.id),
+    alternatives: pickAlternatives(bestIndex, numBudget),
     headline,
     reasons,
+    budgetNote,
     domainRecommendation,
-    costSummary: {
-      monthlyHosting: bestPackage.priceMonthly,
-      yearlyHosting: bestPackage.priceYearly,
-      yearlyDomain: needsDomain ? domainRecommendation.priceYearly : 0,
-      totalFirstYear: bestPackage.priceYearly + (needsDomain ? domainRecommendation.priceYearly : 0),
-      totalRenewalYear: bestPackage.renewalYearly + (needsDomain ? domainRecommendation.renewalYearly : 0)
-    }
+    costSummary: buildCostSummary(bestPackage, domainRecommendation)
   };
 };
-

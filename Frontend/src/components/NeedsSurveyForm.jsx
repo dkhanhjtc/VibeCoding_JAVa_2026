@@ -46,12 +46,12 @@ export const NeedsSurveyForm = ({
   isLoading = false
 }) => {
   const [formData, setFormData] = useState({
-    shopName: initialValues?.shopName || 'Mây Handmade',
-    websiteType: initialValues?.websiteType || 'ecommerce',
-    traffic: initialValues?.traffic || '5k-20k',
-    budget: initialValues?.budget || 150000,
+    shopName: initialValues?.shopName || '',
+    websiteType: initialValues?.websiteType || '',
+    traffic: initialValues?.traffic || '',
+    budget: initialValues?.budget || '',
     needsDomain: initialValues?.needsDomain ?? true,
-    domainIdea: initialValues?.domainIdea || 'mayhandmade.vn'
+    domainIdea: initialValues?.domainIdea || ''
   });
 
   const [errors, setErrors] = useState({});
@@ -135,6 +135,7 @@ export const NeedsSurveyForm = ({
           </div>
           <input
             type="text"
+            maxLength={60}
             value={formData.shopName}
             onChange={(e) => handleFieldChange('shopName', e.target.value)}
             placeholder="Ví dụ: Mây Handmade, Gốm Xinh..."

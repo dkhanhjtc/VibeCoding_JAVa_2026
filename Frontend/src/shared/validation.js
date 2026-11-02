@@ -2,6 +2,13 @@
  * VALIDATION UTILITIES - HOSTWISE AI
  */
 
+import { TRAFFIC_TIERS } from './ruleEngine.js';
+
+const WEBSITE_TYPE_IDS = ['ecommerce', 'company', 'blog'];
+const MAX_SHOP_NAME_LENGTH = 60;
+const MAX_DOMAIN_LENGTH = 63;
+const MAX_BUDGET = 1000000000;
+
 /**
  * Kiểm tra tính hợp lệ của số điện thoại di động Việt Nam (10 số, đầu số hợp lệ)
  * Các đầu số hợp lệ: 03, 05, 07, 08, 09 (hoặc +843, +845, +847, +848, +849)
@@ -32,25 +39,31 @@ export const validatePhoneNumber = (phone) => {
 export const validateNeedsForm = (formData) => {
   const errors = {};
 
-  if (!formData.websiteType) {
+  if ((formData.shopName || '').trim().length > MAX_SHOP_NAME_LENGTH) {
+    errors.shopName = `Tên shop tối đa ${MAX_SHOP_NAME_LENGTH} ký tự`;
+  }
+
+  if (!WEBSITE_TYPE_IDS.includes(formData.websiteType)) {
     errors.websiteType = 'Vui lòng chọn loại website bạn muốn làm';
   }
 
-  if (!formData.traffic) {
+  if (!TRAFFIC_TIERS[formData.traffic]) {
     errors.traffic = 'Vui lòng chọn ước tính lượng truy cập mỗi tháng';
   }
 
-  if (!formData.budget || Number(formData.budget) <= 0) {
+  if (!formData.budget || !(Number(formData.budget) > 0)) {
     errors.budget = 'Vui lòng nhập ngân sách dự kiến cho hosting/tháng';
   } else if (Number(formData.budget) < 30000) {
     errors.budget = 'Ngân sách tối thiểu nên từ 30.000đ/tháng';
+  } else if (Number(formData.budget) > MAX_BUDGET) {
+    errors.budget = 'Ngân sách vượt quá mức hỗ trợ tư vấn';
   }
 
   if (formData.needsDomain && formData.domainIdea && formData.domainIdea.trim()) {
     // Nếu có nhập tên miền, kiểm tra ký tự hợp lệ cơ bản
     const domainClean = formData.domainIdea.trim().toLowerCase();
-    const domainRegex = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z]{2,})?$/;
-    if (!domainRegex.test(domainClean)) {
+    const domainRegex = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z]{2,}){0,2}$/;
+    if (domainClean.length > MAX_DOMAIN_LENGTH || !domainRegex.test(domainClean)) {
       errors.domainIdea = 'Tên miền không được chứa khoảng trắng hoặc ký tự đặc biệt';
     }
   }

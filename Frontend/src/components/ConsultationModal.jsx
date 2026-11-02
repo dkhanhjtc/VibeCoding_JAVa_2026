@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, ArrowRight, ShieldCheck, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { validatePhoneNumber } from '../shared/validation.js';
+import { validateConsultationForm } from '../shared/validation.js';
 import { saveLead } from '../services/leadsStore.js';
 
 export const ConsultationModal = ({
@@ -16,7 +16,7 @@ export const ConsultationModal = ({
     phone: '',
     email: '',
     note: '',
-    agreed: true
+    agreed: false
   });
 
   const [errors, setErrors] = useState({});
@@ -26,11 +26,11 @@ export const ConsultationModal = ({
   useEffect(() => {
     if (isOpen) {
       setFormData({
-        fullName: 'Nguyễn Khánh Linh',
-        phone: '0901234567',
-        email: 'linh.mayhandmade@gmail.com',
+        fullName: '',
+        phone: '',
+        email: '',
         note: surveyData?.shopName ? `Tư vấn mở shop: ${surveyData.shopName}` : '',
-        agreed: true
+        agreed: false
       });
       setErrors({});
       setIsSubmitting(false);
@@ -42,22 +42,13 @@ export const ConsultationModal = ({
   const { name, priceMonthly, priceYearly, renewalYearly, storage, traffic, websites } = packageData;
   const formattedMonthly = Number(priceMonthly).toLocaleString('vi-VN');
   const hasDomain = surveyData?.needsDomain;
-  const domainName = domainRecommendation?.suggestedDomain || (surveyData?.domainIdea ? `${surveyData.domainIdea}.vn` : 'mayhandmade.vn');
-  const domainPrice = hasDomain ? (domainRecommendation?.priceYearly || 450000) : 0;
+  const domainName = domainRecommendation?.suggestedDomain;
+  const domainPrice = hasDomain ? (domainRecommendation?.priceYearly || 0) : 0;
   const totalFirstYear = priceYearly + domainPrice;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const newErrors = {};
-
-    if (!formData.fullName || formData.fullName.trim().length < 2) {
-      newErrors.fullName = 'Vui lòng nhập họ và tên của bạn';
-    }
-
-    const phoneVal = validatePhoneNumber(formData.phone);
-    if (!phoneVal.isValid) {
-      newErrors.phone = phoneVal.error;
-    }
+    const newErrors = validateConsultationForm(formData).errors;
 
     if (!formData.agreed) {
       newErrors.agreed = 'Vui lòng xác nhận đồng ý điều khoản tư vấn';
@@ -121,7 +112,7 @@ export const ConsultationModal = ({
             03 / ĐĂNG KÝ TƯ VẤN
           </span>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight mt-1">
-            Bắt đầu cùng {surveyData?.shopName || 'Mây Handmade'}
+            Bắt đầu cùng {surveyData?.shopName || 'shop của bạn'}
           </h2>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">
             Một bước nhỏ để mở website cho shop. Kỹ thuật viên sẽ hướng dẫn chi tiết, bạn chưa cần thanh toán ngay.
@@ -195,10 +186,20 @@ export const ConsultationModal = ({
               <input
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                onChange={(e) => {
+                  setFormData(prev => ({ ...prev, email: e.target.value }));
+                  if (errors.email) setErrors(prev => ({ ...prev, email: null }));
+                }}
                 placeholder="VD: linh.mayhandmade@gmail.com"
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#111827]"
+                className={`w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#111827] ${
+                  errors.email ? 'border-red-400 bg-red-50/20' : 'border-gray-200 bg-white'
+                }`}
               />
+              {errors.email && (
+                <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5" /> {errors.email}
+                </p>
+              )}
             </div>
 
             <div>
@@ -234,6 +235,11 @@ export const ConsultationModal = ({
 
             {/* Submit & Back buttons */}
             <div className="pt-3 space-y-2">
+              {errors.form && (
+                <p className="text-xs text-red-500 flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5" /> {errors.form}
+                </p>
+              )}
               <button
                 type="submit"
                 disabled={isSubmitting}

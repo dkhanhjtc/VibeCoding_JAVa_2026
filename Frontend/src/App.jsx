@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import Layout from './components/Layout.jsx';
 import NeedsSurveyForm from './components/NeedsSurveyForm.jsx';
 import RecommendationResult from './components/RecommendationResult.jsx';
@@ -15,12 +15,12 @@ import { calculateRecommendation } from './shared/ruleEngine.js';
 export function App() {
   // 1. Quản lý State cốt lõi của ứng dụng
   const [formData, setFormData] = useState({
-    shopName: 'Mây Handmade',
-    websiteType: 'ecommerce',
-    traffic: '5k-20k',
-    budget: 150000,
+    shopName: '',
+    websiteType: '',
+    traffic: '',
+    budget: '',
     needsDomain: true,
-    domainIdea: 'mayhandmade.vn'
+    domainIdea: ''
   });
 
   const [recommendationData, setRecommendationData] = useState(null);
@@ -31,12 +31,6 @@ export function App() {
   const [toastMessage, setToastMessage] = useState(null);
 
   const resultsRef = useRef(null);
-
-  // Khởi tạo một đề xuất mặc định ban đầu để trang luôn đầy đủ và trực quan giống bản thiết kế
-  useEffect(() => {
-    const initialRec = calculateRecommendation(formData);
-    setRecommendationData(initialRec);
-  }, []);
 
   // 2. Xử lý khi người dùng submit form khảo sát
   const handleSurveySubmit = async (surveyValues) => {
