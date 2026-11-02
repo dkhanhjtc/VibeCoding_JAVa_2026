@@ -8,7 +8,7 @@ export const Layout = ({
   return (
     <div className="min-h-screen bg-slate-50 text-gray-900 flex flex-col font-sans antialiased selection:bg-[#111827] selection:text-white">
       {/* ----------------- TOP HEADER ----------------- */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-2xs">
+      <header className="sticky top-0 z-40 bg-[#006241] backdrop-blur-md border-b border-gray-200 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Logo & Brand */}
           <div className="flex items-center gap-3">
@@ -17,25 +17,25 @@ export const Layout = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-base sm:text-lg tracking-tight text-[#111827]">
+                <span className="font-extrabold text-base sm:text-lg tracking-tight text-[#C2C2C2]">
                   HostWise AI
                 </span>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
                   Bản Demo
                 </span>
               </div>
-              <p className="text-[10px] text-gray-500 font-medium tracking-wide uppercase">
+              <p className="text-[10px] text-[#C2C2C2] font-medium tracking-wide uppercase">
                 Hosting & Tên Miền, Dễ Hiểu Hơn
               </p>
             </div>
           </div>
 
           {/* Nav links on desktop */}
-          <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-gray-600">
-            <a href="#khao-sat" className="hover:text-[#111827] transition-colors">
+          <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-[#C2C2C2]">
+            <a href="#khao-sat" className="hover:text-[#C2C2C2] transition-colors">
               Tư vấn cho shop
             </a>
-            <a href="#cau-hoi" className="hover:text-[#111827] transition-colors">
+            <a href="#cau-hoi" className="hover:text-[#C2C2C2] transition-colors">
               Câu hỏi thường gặp
             </a>
           </nav>

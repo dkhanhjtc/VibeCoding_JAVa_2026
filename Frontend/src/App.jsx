@@ -115,7 +115,7 @@ export function App() {
               Nhu cầu
             </span>
             <span className="text-gray-300">→</span>
-            <span className={recommendationData ? 'text-[#111827] flex items-center gap-1' : 'text-gray-400'}>
+            <span className={`flex items-center gap-1 ${recommendationData ? 'text-[#111827]' : 'text-gray-400'}`}>
               <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] ${recommendationData ? 'bg-[#111827] text-white' : 'bg-gray-200 text-gray-600'}`}>2</span>
               So sánh
             </span>
