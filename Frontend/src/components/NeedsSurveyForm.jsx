@@ -249,7 +249,7 @@ export const NeedsSurveyForm = ({
             <div className="relative flex-1">
               <input
                 type="number"
-                step="10000"
+                step="1000"
                 min="30000"
                 value={formData.budget}
                 onChange={(e) => handleFieldChange('budget', e.target.value)}
