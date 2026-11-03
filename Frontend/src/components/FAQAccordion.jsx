@@ -4,33 +4,33 @@ import { ChevronDown, HelpCircle } from 'lucide-react';
 const FAQ_ITEMS = [
   {
     id: 'faq-1',
-    question: 'Băng thông là gì? Hết băng thông thì web có bị sập không?',
-    answer: 'Băng thông (Bandwidth) là tổng dung lượng dữ liệu truyền tải giữa website và khách truy cập (tải ảnh sản phẩm, xem video, lướt trang). Khi hết hạn mức băng thông tháng, website sẽ hiển thị thông báo tạm thời ngưng phục vụ (Bandwidth Limit Exceeded) thay vì sập hoàn toàn. Tuy nhiên, các gói hosting tại HostWise đều được cấu hình hạn mức rộng rãi và có cảnh báo tự động khi đạt 80% để bạn an tâm kinh doanh.'
+    question: 'Hosting và tên miền khác nhau thế nào?',
+    answer: 'Tên miền là địa chỉ để khách tìm đến, như mayhandmade.vn. Hosting là nơi chứa ảnh, sản phẩm và nội dung của shop. Muốn website hoạt động, bạn cần cả hai.'
   },
   {
     id: 'faq-2',
-    question: 'Nên chọn đuôi .vn hay .com cho shop bán hàng online?',
-    answer: 'Nếu thị trường chính của bạn là người tiêu dùng tại Việt Nam, đuôi .vn (hoặc .com.vn) là lựa chọn vàng vì tăng uy tín cao nhất, bảo hộ thương hiệu nội địa và được thuật toán tìm kiếm Google ưu tiên hiển thị trong nước. Nếu bạn muốn tiết kiệm chi phí ban đầu hoặc có kế hoạch bán xuyên biên giới, đuôi .com là giải pháp quốc tế thông dụng và chi phí gia hạn rất rẻ.'
+    question: 'Chưa rành kỹ thuật có tự dùng được không?',
+    answer: 'Hoàn toàn được. Bảng quản trị tiếng Việt trực quan, tự động cài đặt WordPress/WooCommerce chỉ với 1 click và đội ngũ kỹ thuật hỗ trợ bạn 24/7.'
   },
   {
     id: 'faq-3',
-    question: 'Mới mở shop có cần thuê máy chủ riêng (VPS) không?',
-    answer: 'Hoàn toàn CHƯA CẦN. VPS đòi hỏi kiến thức quản trị hệ thống phức tạp (cài đặt Linux, bảo mật tường lửa, tối ưu web server). Một gói Cloud Hosting / Shared Hosting chất lượng cao đã được cấu hình sẵn môi trường LiteSpeed tối ưu riêng cho WordPress/WooCommerce, kèm đội ngũ kỹ thuật chăm sóc 24/7 giúp bạn tập trung 100% vào việc bán hàng.'
+    question: 'Shop đông khách hơn thì nâng gói được chứ?',
+    answer: 'Có thể nâng cấp bất kỳ lúc nào chỉ mất 2-3 phút, dữ liệu và hình ảnh sản phẩm được giữ nguyên vẹn 100% không làm gián đoạn việc bán hàng.'
   },
   {
     id: 'faq-4',
-    question: 'Ổ cứng SSD thường và NVMe SSD khác nhau ra sao?',
-    answer: 'Ổ cứng NVMe SSD sử dụng giao thức truyền dữ liệu trực tiếp qua khe PCIe, mang lại tốc độ đọc ghi dữ liệu nhanh gấp 5 đến 10 lần so với ổ SSD SATA thông thường. Đối với web bán hàng WooCommerce có nhiều hình ảnh và truy vấn cơ sở dữ liệu giỏ hàng, NVMe giúp tốc độ tải trang dưới 1.2 giây, giảm tỷ lệ khách thoát trang và tăng chuyển đổi đơn hàng.'
+    question: 'Năm sau tôi sẽ trả bao nhiêu?',
+    answer: 'Chi phí gia hạn từ năm thứ hai được niêm yết rõ ràng và minh bạch ngay từ đầu, không có phí ẩn. Ví dụ gói Đồng hành là 129.000đ/tháng (1.548.000đ/năm).'
   },
   {
     id: 'faq-5',
-    question: 'Sau này lượng khách tăng thì có nâng cấp gói hosting dễ dàng không?',
-    answer: 'Rất dễ dàng và hoàn toàn tự động! Bạn có thể nâng cấp từ gói Khởi đầu lên Đồng hành hoặc Phát triển chỉ với 1 cú click trong tài khoản quản trị. Toàn bộ mã nguồn, hình ảnh sản phẩm và cơ sở dữ liệu đơn hàng được giữ nguyên vẹn 100%, website hoạt động liên tục mà không hề bị gián đoạn hay mất 1 giây truy cập nào.'
+    question: 'Để lại thông tin có bị trừ tiền không?',
+    answer: 'Không bao giờ. Bước đăng ký tư vấn hoàn toàn miễn phí, chúng tôi không yêu cầu thông tin thẻ ngân hàng hay bất kỳ cam kết mua hàng nào.'
   }
 ];
 
 export const FAQAccordion = () => {
-  // Mở mặc định câu hỏi đầu tiên
+  // Mở mặc định câu hỏi đầu tiên như mockup
   const [openItems, setOpenItems] = useState({ 'faq-1': true });
 
   const toggleItem = (id) => {
@@ -41,16 +41,16 @@ export const FAQAccordion = () => {
   };
 
   return (
-    <section aria-label="Câu hỏi thường gặp" className="w-full mt-14 mb-8">
-      <div className="text-center max-w-xl mx-auto mb-10">
-        <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
+    <section aria-label="Câu hỏi thường gặp" className="w-full">
+      <div className="text-center max-w-xl mx-auto mb-8 sm:mb-10">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-[#3b7a8c] block mb-0.5">
           GIẢI ĐÁP NGẮN GỌN
         </span>
-        <h3 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight mt-1">
+        <h3 className="text-2xl sm:text-3xl font-black text-[#00203d] tracking-tight">
           Bạn có thể đang băn khoăn
         </h3>
-        <p className="text-xs sm:text-sm text-gray-500 mt-1.5">
-          Những điều cần biết để chủ shop yên tâm chọn hosting và mở website kinh doanh
+        <p className="text-xs sm:text-sm text-[#1f4f5a] mt-1 leading-relaxed">
+          Những điều nên biết trước khi mở website đầu tiên.
         </p>
       </div>
 
@@ -60,33 +60,45 @@ export const FAQAccordion = () => {
           return (
             <div
               key={item.id}
-              className={`rounded-2xl transition-all duration-200 border overflow-hidden ${
+              className={`rounded-2xl transition-all duration-300 border overflow-hidden ${
                 isOpen
-                  ? 'border-gray-300 bg-white shadow-sm ring-1 ring-[#111827]/5'
-                  : 'border-gray-200 bg-white/70 hover:border-gray-300 hover:bg-white'
+                  ? 'border-[#3b7a8c] bg-white shadow-card ring-1 ring-[#3b7a8c]/20'
+                  : 'border-[#a1c0d1]/40 bg-white hover:border-[#6b99ab] hover:bg-[#f0f4f8]/50'
               }`}
             >
               <button
                 type="button"
                 onClick={() => toggleItem(item.id)}
-                className="w-full text-left py-4 px-5 sm:px-6 flex items-center justify-between gap-4 font-bold text-[#111827] text-sm select-none cursor-pointer"
+                aria-expanded={isOpen}
+                className="w-full text-left py-3.5 px-4 sm:px-5 flex items-center justify-between gap-3 font-bold text-[#00203d] text-xs sm:text-sm select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b7a8c]"
               >
-                <span className="flex items-center gap-2.5">
-                  <HelpCircle className="w-4 h-4 text-gray-400 shrink-0 hidden sm:block" />
+                <span className="flex items-center gap-2">
+                  <HelpCircle className="w-4 h-4 text-[#3b7a8c] shrink-0 hidden sm:block" />
                   <span>{item.question}</span>
                 </span>
                 <ChevronDown
-                  className={`w-4 h-4 text-gray-500 shrink-0 transition-transform duration-300 ${
-                    isOpen ? 'rotate-180 text-[#111827]' : ''
+                  className={`w-4 h-4 text-[#6b99ab] shrink-0 transition-transform duration-300 ease-out ${
+                    isOpen ? 'rotate-180 text-[#3b7a8c]' : ''
                   }`}
                 />
               </button>
 
-              {isOpen && (
-                <div className="px-5 sm:px-6 pb-5 pt-1 text-xs sm:text-sm text-gray-600 leading-relaxed border-t border-gray-100 bg-gray-50/40 animate-fade-in">
-                  <p>{item.answer}</p>
+              {/* Smooth Grid Rows Height Animation: 0 layout snaps */}
+              <div
+                className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+                  isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                }`}
+              >
+                <div className="overflow-hidden">
+                  <div
+                    className={`px-4 sm:px-5 pb-4 pt-1 text-xs text-[#1f4f5a] leading-relaxed border-t border-[#f0f4f8] bg-[#f0f4f8]/40 transition-opacity duration-300 ${
+                      isOpen ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  >
+                    <p>{item.answer}</p>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
           );
         })}

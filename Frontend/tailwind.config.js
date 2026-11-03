@@ -7,30 +7,28 @@ export default {
   theme: {
     extend: {
       colors: {
-        charcoal: {
-          DEFAULT: '#111827', // Đen than chuẩn Tailwind gray-900
-          50: '#F9FAFB',
-          100: '#F3F4F6',
-          200: '#E5E7EB',
-          300: '#D1D5DB',
-          400: '#9CA3AF',
-          500: '#6B7280',
-          600: '#4B5563',
-          700: '#374151',
-          800: '#1F2937',
-          900: '#111827',
-          950: '#0F172A',
+        // Bảng màu 8 màu chính thức của website:
+        palette: {
+          bg: '#f0f4f8',        // Primary Background: Nền chính của website
+          light: '#a1c0d1',     // Light Blue: Nền phụ, vùng highlight nhẹ
+          soft: '#6b99ab',      // Soft Blue: Màu phụ, icon, trạng thái phụ
+          primary: '#3b7a8c',   // Primary Blue: Primary actions, button, link
+          deep: '#2e5e73',      // Deep Blue: Hover state, heading, active elements
+          darkTeal: '#1f4f5a',  // Dark Teal: Navigation, emphasis
+          deepTeal: '#0f383f',  // Deep Teal: Dark sections, strong contrast
+          navy: '#00203d',      // Navy: Text chính, sidebar, footer, dark elements
         }
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       boxShadow: {
-        'subtle': '0 1px 3px 0 rgba(17, 24, 39, 0.05), 0 1px 2px -1px rgba(17, 24, 39, 0.05)',
-        'phone': '0 25px 50px -12px rgba(17, 24, 39, 0.25), 0 0 0 12px #111827, 0 0 0 14px #374151',
+        'subtle': '0 1px 3px 0 rgba(0, 32, 61, 0.05), 0 1px 2px -1px rgba(0, 32, 61, 0.05)',
+        'card': '0 4px 20px -2px rgba(15, 56, 63, 0.06)',
+        'floating': '0 10px 25px -3px rgba(0, 32, 61, 0.08), 0 4px 6px -2px rgba(0, 32, 61, 0.04)',
+        'elevated': '0 14px 35px -5px rgba(0, 32, 61, 0.12)',
       }
     },
   },
   plugins: [],
 }
-

@@ -1,291 +1,326 @@
-import React, { useState } from 'react';
-import { Check, Sparkles, ArrowRight, ShieldCheck, HardDrive, Users, Globe, Lock, Shield, Clock } from 'lucide-react';
+import React from 'react';
+import { ArrowRight, Sparkles } from 'lucide-react';
+import { Button, SectionBadge } from './UIPrimitives.jsx';
 
 export const ComparisonTable = ({
   packages = [],
-  bestMatchId,
+  bestMatchId = 'standard',
   domainRecommendation,
   onSelect
 }) => {
-  // Tab active cho chế độ xem mobile
-  const [activeMobileTab, setActiveMobileTab] = useState(bestMatchId || (packages[0]?.id));
-
   if (!packages || packages.length === 0) return null;
 
-  // Sắp xếp các gói theo giá tăng dần để dễ đối chiếu
-  const sortedPackages = [...packages].sort((a, b) => a.priceMonthly - b.priceMonthly);
+  // Sắp xếp thứ tự gói chuẩn: Khởi đầu, Đồng hành, Phát triển
+  const packageOrder = ['entry', 'standard', 'pro'];
+  const displayPackages = [...packages].sort((a, b) => {
+    const idxA = packageOrder.indexOf(a.id);
+    const idxB = packageOrder.indexOf(b.id);
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+    return (a.priceMonthly || 0) - (b.priceMonthly || 0);
+  });
 
-  const domainCost = `${Number(domainRecommendation?.priceYearly).toLocaleString('vi-VN')}đ/năm đầu`;
+  const domainName = domainRecommendation?.suggestedDomain || 'mayhandmade.vn';
+  const domainPrice = domainRecommendation?.priceYearly
+    ? `${Number(domainRecommendation.priceYearly).toLocaleString('vi-VN')}đ/năm đầu`
+    : '450.000đ/năm đầu';
 
   const rows = [
     {
-      key: 'price',
-      label: 'Giá / tháng',
-      tooltip: 'Mức giá ưu đãi áp dụng trong năm đầu tiên',
-      icon: null,
-      render: (pkg) => (
-        <div>
-          <span className="text-base md:text-lg font-bold text-[#111827]">
-            {Number(pkg.priceMonthly).toLocaleString('vi-VN')}đ
-          </span>
-          <span className="text-xs text-gray-500 font-normal"> /tháng</span>
-        </div>
-      )
+      key: 'renewal',
+      label: 'Gia hạn hosting',
+      getValue: (pkg) => `${Number(pkg.renewalMonthly || (pkg.priceMonthly * 1.3)).toLocaleString('vi-VN')}đ/tháng`
     },
     {
       key: 'storage',
-      label: 'Ổ cứng (NVMe SSD)',
-      tooltip: 'Ổ cứng NVMe siêu tốc, truy xuất nhanh gấp 10 lần SSD SATA thông thường',
-      icon: HardDrive,
-      render: (pkg) => <span className="font-semibold text-gray-800">{pkg.storage}</span>
+      label: 'Dung lượng lưu trữ',
+      getValue: (pkg) => (pkg.storage ? pkg.storage.replace(' NVMe', '') : '15 GB')
     },
     {
       key: 'traffic',
-      label: 'Băng thông (Lưu lượng khách)',
-      tooltip: 'Số lượt khách tối đa website phục vụ mượt mà mỗi tháng mà không bị nghẽn giỏ hàng',
-      icon: Users,
-      render: (pkg) => <span className="font-medium text-gray-700">{pkg.traffic}</span>
+      label: 'Lượt khách thích hợp',
+      getValue: (pkg) => {
+        if (pkg.id === 'entry') return '3.000 lượt/tháng';
+        if (pkg.id === 'standard') return '10.000 lượt/tháng';
+        if (pkg.id === 'pro') return '30.000 lượt/tháng';
+        return pkg.traffic || '10.000 lượt/tháng';
+      }
     },
     {
-      key: 'domain',
-      label: 'Tên miền kèm theo',
-      tooltip: 'Hỗ trợ kết nối và đăng ký tên miền riêng cho shop',
-      icon: Globe,
-      render: (pkg) => (
-        <span className="text-xs text-gray-700">
-          {domainRecommendation?.suggestedDomain} ({domainCost})
-        </span>
-      )
+      key: 'websites',
+      label: 'Số website',
+      getValue: (pkg) => `${pkg.websites || 1} website`
     },
     {
       key: 'ssl',
-      label: 'Chứng chỉ bảo mật SSL',
-      tooltip: 'Bảo vệ thông tin thanh toán và giỏ hàng của khách (https://)',
-      icon: Lock,
-      render: (pkg) => (
-        <div className="flex items-center justify-center sm:justify-start gap-1 text-emerald-700 text-xs">
-          <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
-          <span>{pkg.ssl}</span>
-        </div>
-      )
+      label: 'Bảo mật SSL',
+      getValue: () => 'Miễn phí · tự gia hạn'
     },
     {
       key: 'backup',
       label: 'Sao lưu dữ liệu',
-      tooltip: 'Tự động sao lưu định kỳ, khôi phục nguyên trạng chỉ với 1 click khi cần',
-      icon: Shield,
-      render: (pkg) => <span className="text-gray-800">{pkg.backup}</span>
-    },
-    {
-      key: 'websites',
-      label: 'Số lượng website',
-      tooltip: 'Số website chạy độc lập trên cùng gói hosting',
-      icon: null,
-      render: (pkg) => <span className="text-gray-800">{pkg.websites} website</span>
+      getValue: (pkg) => pkg.backup || 'Mỗi ngày · giữ 14 ngày'
     },
     {
       key: 'support',
-      label: 'Kênh hỗ trợ',
-      tooltip: 'Kỹ thuật viên đồng hành giải quyết sự cố 24/7',
-      icon: Clock,
-      render: (pkg) => <span className="text-gray-800">{pkg.support}</span>
+      label: 'Khi cần hỗ trợ',
+      getValue: (pkg) => pkg.support || 'Chat 24/7'
+    },
+    {
+      key: 'suitable',
+      label: 'Phù hợp với',
+      getValue: (pkg) => {
+        if (pkg.id === 'entry') return 'Shop mới thử bán';
+        if (pkg.id === 'standard') return 'Shop nhỏ bán ổn định';
+        if (pkg.id === 'pro') return 'Shop mở rộng nhiều kênh';
+        return pkg.suitableFor || 'Shop kinh doanh';
+      }
+    },
+    {
+      key: 'domain',
+      label: 'Tên miền đi kèm',
+      getValue: () => `${domainName} +${domainPrice}`
     }
-  ].filter((row) => row.key !== 'domain' || domainRecommendation);
+  ];
 
   return (
-    <div className="w-full bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm mt-10">
-      {/* Title & Section Header */}
-      <div className="px-6 py-5 border-b border-gray-200 bg-gray-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h4 className="text-lg font-bold text-[#111827]">
-            Bảng đối chiếu thông số chi tiết
-          </h4>
-          <p className="text-xs text-gray-500 mt-0.5">
-            So sánh đối chiếu 3 gói hosting (01 Best Match + 02 Alternatives) trực quan
-          </p>
-        </div>
-        <div className="flex items-center gap-2 text-xs text-gray-500">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-          Đã gồm VAT & Hỗ trợ kỹ thuật cấu hình ban đầu
-        </div>
-      </div>
-
-      {/* ----------------- MOBILE VIEW (< 768px): SWIPEABLE / TABBED CARDS ----------------- */}
-      <div className="block md:hidden p-4">
-        {/* Package Tabs */}
-        <div className="grid grid-cols-3 gap-1.5 p-1 bg-gray-100 rounded-xl mb-4">
-          {sortedPackages.map((pkg) => {
-            const isBest = pkg.id === bestMatchId;
-            const isSelected = pkg.id === activeMobileTab;
-            return (
-              <button
-                key={pkg.id}
-                type="button"
-                onClick={() => setActiveMobileTab(pkg.id)}
-                className={`py-2 px-1 text-center rounded-lg text-xs font-semibold transition-all relative ${
-                  isSelected
-                    ? 'bg-[#111827] text-white shadow-sm'
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-200/60'
-                }`}
-              >
-                {pkg.name}
-                {isBest && !isSelected && (
-                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-400 rounded-full border-2 border-white"></span>
-                )}
-              </button>
-            );
-          })}
+    <div className="w-full">
+      {/* ----------------- DESKTOP VIEW (>= 1024px / lg) ----------------- */}
+      <div className="hidden lg:block bg-white border border-[#a1c0d1]/60 rounded-3xl overflow-hidden shadow-card">
+        <div className="p-6 pb-4 border-b border-[#a1c0d1]/40">
+          <SectionBadge
+            tag="02 / CHỌN GÓI VỪA VẶN"
+            title="Ba gói. Một lựa chọn phù hợp."
+            subtitle="Đọc theo từng hàng để thấy điều gì thực sự khác biệt."
+            className="mb-0 border-b-0 pb-0"
+          />
         </div>
 
-        {/* Selected Package Details in Mobile Card */}
-        {sortedPackages
-          .filter((pkg) => pkg.id === activeMobileTab)
-          .map((pkg) => {
-            const isBest = pkg.id === bestMatchId;
-            return (
-              <div
-                key={pkg.id}
-                className={`rounded-2xl p-5 ${
-                  isBest
-                    ? 'bg-gray-50/90 border-2 border-[#111827]'
-                    : 'bg-white border border-gray-200'
-                }`}
-              >
-                <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
-                  <div>
-                    {isBest && (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-white bg-[#111827] px-2 py-0.5 rounded-full mb-1">
-                        <Sparkles className="w-3 h-3 text-amber-300" /> Khuyên dùng tốt nhất
-                      </span>
-                    )}
-                    <h5 className="text-xl font-bold text-[#111827]">{pkg.name}</h5>
-                    <p className="text-xs text-gray-500">{pkg.tagline}</p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-[#a1c0d1]/40">
+                <th className="py-4 px-4 text-xs font-semibold text-[#6b99ab] w-[24%] align-top bg-[#f0f4f8]/40">
+                  <div className="flex items-center gap-1.5 text-[#00203d] font-bold mb-1">
+                    <span className="w-3.5 h-3.5 border border-[#3b7a8c] rounded grid grid-cols-2 gap-0.5 p-0.5">
+                      <span className="bg-[#3b7a8c] rounded-xs"></span>
+                      <span className="bg-[#3b7a8c] rounded-xs"></span>
+                      <span className="bg-[#3b7a8c] rounded-xs"></span>
+                      <span className="bg-[#3b7a8c] rounded-xs"></span>
+                    </span>
+                    <span>Một góc nhìn rõ ràng</span>
                   </div>
-                  <div className="text-right">
-                    <div className="text-xl font-extrabold text-[#111827]">
-                      {Number(pkg.priceMonthly).toLocaleString('vi-VN')}đ
-                    </div>
-                    <div className="text-[11px] text-gray-500">/tháng</div>
-                  </div>
-                </div>
+                  <p className="text-[11px] text-[#1f4f5a] font-normal leading-tight">
+                    Không cần đọc thông số khó hiểu.
+                  </p>
+                </th>
 
-                <div className="space-y-3 divide-y divide-gray-100 text-xs">
-                  {rows.map((row) => (
-                    <div key={row.key} className="pt-2 flex justify-between items-center gap-2">
-                      <span className="text-gray-500">{row.label}</span>
-                      <span className="text-right font-medium text-gray-800">
-                        {row.render(pkg)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                {displayPackages.map((pkg) => {
+                  const isBest = pkg.id === bestMatchId;
+                  return (
+                    <th
+                      key={pkg.id}
+                      className={`py-4 px-4 align-top transition-colors w-[25.3%] ${
+                        isBest
+                          ? 'bg-[#f0f4f8]/70 border-x border-[#3b7a8c]/40 relative'
+                          : 'bg-white'
+                      }`}
+                    >
+                      {isBest ? (
+                        <div className="mb-2">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#00203d] text-white text-[10px] font-black uppercase tracking-wider shadow-subtle">
+                            <Sparkles className="w-2.5 h-2.5 text-[#3b7a8c]" />
+                            Đề xuất cho bạn
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="h-6 mb-2" />
+                      )}
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-[#6b99ab]">
+                        Gói Hosting
+                      </div>
+                      <div className="text-lg font-black text-[#00203d] mt-0.5">
+                        {pkg.name}
+                      </div>
+                      <div className="text-[11px] text-[#1f4f5a] font-normal">
+                        {pkg.tagline}
+                      </div>
+                      <div className="mt-2.5">
+                        <span className="text-xl font-black text-[#00203d]">
+                          {Number(pkg.priceMonthly).toLocaleString('vi-VN')}đ
+                        </span>
+                        <span className="text-xs text-[#1f4f5a]">/tháng</span>
+                        <div className="text-[11px] text-[#6b99ab] mt-0.5">
+                          {Number(pkg.priceYearly).toLocaleString('vi-VN')}đ cho năm đầu
+                        </div>
+                      </div>
+                    </th>
+                  );
+                })}
+              </tr>
+            </thead>
 
-                <div className="mt-6 pt-4 border-t border-gray-200">
-                  <button
-                    type="button"
-                    onClick={() => onSelect?.(pkg)}
-                    className={`w-full py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all ${
-                      isBest
-                        ? 'bg-[#111827] text-white shadow-md hover:bg-[#1F2937]'
-                        : 'border border-gray-300 text-gray-800 hover:bg-gray-100'
-                    }`}
-                  >
-                    <span>{isBest ? `Đăng ký tư vấn gói ${pkg.name}` : `Chọn gói ${pkg.name}`}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-      </div>
+            <tbody className="divide-y divide-[#a1c0d1]/30 text-xs">
+              {rows.map((row) => (
+                <tr key={row.key} className="hover:bg-[#f0f4f8]/50 transition-colors">
+                  <td className="py-3 px-4 font-semibold text-[#00203d] bg-[#f0f4f8]/30">
+                    {row.label}
+                  </td>
+                  {displayPackages.map((pkg) => {
+                    const isBest = pkg.id === bestMatchId;
+                    return (
+                      <td
+                        key={pkg.id}
+                        className={`py-3 px-4 text-[#1f4f5a] ${
+                          isBest ? 'border-x border-[#3b7a8c]/40 bg-[#f0f4f8]/50 font-medium text-[#00203d]' : ''
+                        }`}
+                      >
+                        {row.getValue(pkg)}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
 
-      {/* ----------------- DESKTOP VIEW (>= 768px): FULL GRID TABLE ----------------- */}
-      <div className="hidden md:block overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-gray-200 bg-white">
-              <th className="py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider w-1/4">
-                Tiêu chí so sánh
-              </th>
-              {sortedPackages.map((pkg) => {
-                const isBest = pkg.id === bestMatchId;
-                return (
-                  <th
-                    key={pkg.id}
-                    className={`py-4 px-6 text-center w-1/4 transition-colors ${
-                      isBest ? 'bg-gray-50/90 relative' : ''
-                    }`}
-                  >
-                    {isBest && (
-                      <div className="absolute top-0 left-0 right-0 h-1 bg-[#111827]"></div>
-                    )}
-                    {isBest && (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-white bg-[#111827] px-2.5 py-0.5 rounded-full mb-1">
-                        <Sparkles className="w-2.5 h-2.5 text-amber-300" /> Khuyên dùng tốt nhất
-                      </span>
-                    )}
-                    <div className="text-lg font-bold text-[#111827]">{pkg.name}</div>
-                    <div className="text-xs text-gray-500 font-normal">{pkg.tagline}</div>
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
-
-          <tbody className="divide-y divide-gray-100 text-sm">
-            {rows.map((row) => (
-              <tr key={row.key} className="hover:bg-gray-50/40 transition-colors">
-                <td className="py-3.5 px-6 font-medium text-gray-700 text-xs flex items-center gap-1.5">
-                  <span>{row.label}</span>
-                </td>
-                {sortedPackages.map((pkg) => {
+              {/* Action Buttons Row */}
+              <tr className="border-t border-[#a1c0d1]/50">
+                <td className="py-4 px-4 bg-[#f0f4f8]/30"></td>
+                {displayPackages.map((pkg) => {
                   const isBest = pkg.id === bestMatchId;
                   return (
                     <td
                       key={pkg.id}
-                      className={`py-3.5 px-6 text-center ${
-                        isBest ? 'bg-gray-50/80 font-medium' : ''
+                      className={`py-4 px-4 align-middle ${
+                        isBest ? 'border-x border-b border-[#3b7a8c]/40 bg-[#f0f4f8]/50' : ''
                       }`}
                     >
-                      {row.render(pkg)}
+                      {isBest ? (
+                        <Button
+                          variant="navy"
+                          size="md"
+                          onClick={() => onSelect?.(pkg)}
+                          className="w-full group"
+                        >
+                          <span>Đăng ký {pkg.name}</span>
+                          <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1 text-[#3b7a8c]" />
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="md"
+                          onClick={() => onSelect?.(pkg)}
+                          className="w-full"
+                        >
+                          Chọn gói này
+                        </Button>
+                      )}
                     </td>
                   );
                 })}
               </tr>
-            ))}
+            </tbody>
+          </table>
+        </div>
 
-            {/* Action Row at Bottom of Table */}
-            <tr className="border-t-2 border-gray-200 bg-white">
-              <td className="py-5 px-6 text-xs font-semibold text-gray-400 uppercase">
-                Hành động
-              </td>
-              {sortedPackages.map((pkg) => {
-                const isBest = pkg.id === bestMatchId;
-                return (
-                  <td
-                    key={pkg.id}
-                    className={`py-5 px-6 text-center ${
-                      isBest ? 'bg-gray-50/80' : ''
-                    }`}
+        <div className="p-4 bg-[#f0f4f8]/40 border-t border-[#a1c0d1]/40 text-[11px] text-[#6b99ab] leading-relaxed">
+          Giá ví dụ đã gồm VAT. Giá theo tháng được quy đổi khi trả trước 12 tháng; mức gia hạn áp dụng từ năm thứ hai. Không phải báo giá của nhà cung cấp.
+        </div>
+      </div>
+
+      {/* ----------------- MOBILE VIEW (< 1024px): 3 STACKED CARDS MATCHING MOCKUP ----------------- */}
+      <div className="block lg:hidden space-y-4">
+        <div className="bg-white border border-[#a1c0d1]/60 rounded-3xl p-5 shadow-card">
+          <SectionBadge
+            tag="02 / CHỌN GÓI VỪA VẶN"
+            title="Ba gói. Một lựa chọn phù hợp."
+            subtitle="Đọc theo từng hàng để thấy điều gì thực sự khác biệt."
+            className="mb-0 border-b-0 pb-0"
+          />
+        </div>
+
+        {displayPackages.map((pkg) => {
+          const isBest = pkg.id === bestMatchId;
+          return (
+            <div
+              key={pkg.id}
+              className={`rounded-3xl p-5 transition-all duration-200 shadow-card bg-white ${
+                isBest
+                  ? 'border-2 border-[#00203d] ring-1 ring-[#00203d]/10'
+                  : 'border border-[#a1c0d1]/70'
+              }`}
+            >
+              {isBest && (
+                <div className="mb-2">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#00203d] text-white text-[10px] font-black uppercase tracking-wider shadow-subtle">
+                    <Sparkles className="w-2.5 h-2.5 text-[#3b7a8c]" />
+                    Đề xuất cho bạn
+                  </span>
+                </div>
+              )}
+
+              <div className="text-[10px] font-bold uppercase tracking-wider text-[#6b99ab]">
+                Gói Hosting
+              </div>
+              <h4 className="text-xl font-black text-[#00203d] mt-0.5">
+                {pkg.name}
+              </h4>
+              <p className="text-xs text-[#1f4f5a] mt-0.5">
+                {pkg.tagline}
+              </p>
+
+              <div className="my-3 py-2.5 px-3 rounded-xl bg-[#f0f4f8] border border-[#a1c0d1]/50 flex items-baseline justify-between">
+                <div>
+                  <span className="text-2xl font-black text-[#00203d]">
+                    {Number(pkg.priceMonthly).toLocaleString('vi-VN')}đ
+                  </span>
+                  <span className="text-xs text-[#1f4f5a]">/tháng</span>
+                </div>
+                <span className="text-[11px] text-[#6b99ab]">
+                  {Number(pkg.priceYearly).toLocaleString('vi-VN')}đ/năm đầu
+                </span>
+              </div>
+
+              {/* Rows specs list */}
+              <div className="space-y-2 text-xs divide-y divide-[#a1c0d1]/30">
+                {rows.map((row) => (
+                  <div key={row.key} className="pt-2 flex justify-between items-start gap-2">
+                    <span className="text-[#6b99ab] shrink-0">{row.label}:</span>
+                    <span className="text-right font-medium text-[#00203d]">
+                      {row.getValue(pkg)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Action Button */}
+              <div className="mt-5 pt-3 border-t border-[#a1c0d1]/40">
+                {isBest ? (
+                  <Button
+                    variant="navy"
+                    size="md"
+                    onClick={() => onSelect?.(pkg)}
+                    className="w-full group"
                   >
-                    <button
-                      type="button"
-                      onClick={() => onSelect?.(pkg)}
-                      className={`w-full max-w-[200px] py-2.5 px-4 rounded-xl text-xs font-semibold transition-all inline-flex items-center justify-center gap-1.5 ${
-                        isBest
-                          ? 'bg-[#111827] text-white shadow hover:bg-[#1F2937]'
-                          : 'border border-gray-300 text-gray-800 hover:bg-gray-100'
-                      }`}
-                    >
-                      <span>{isBest ? `Đăng ký ${pkg.name}` : 'Chọn gói này'}</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </td>
-                );
-              })}
-            </tr>
-          </tbody>
-        </table>
+                    <span>Đăng ký {pkg.name}</span>
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1 text-[#3b7a8c]" />
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="md"
+                    onClick={() => onSelect?.(pkg)}
+                    className="w-full"
+                  >
+                    Chọn gói này
+                  </Button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        <div className="p-4 bg-white rounded-2xl border border-[#a1c0d1]/50 text-[11px] text-[#6b99ab] leading-relaxed">
+          Giá ví dụ đã gồm VAT. Giá theo tháng được quy đổi khi trả trước 12 tháng; mức gia hạn áp dụng từ năm thứ hai. Không phải báo giá của nhà cung cấp.
+        </div>
       </div>
     </div>
   );
