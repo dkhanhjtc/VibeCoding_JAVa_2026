@@ -132,7 +132,7 @@ export const AdminDashboard = ({
               className="bg-transparent border-[#1f4f5a] text-white hover:bg-[#0f383f] hover:border-[#3b7a8c]"
             >
               <ArrowLeft className="w-3.5 h-3.5 text-[#3b7a8c]" />
-              <span className="hidden sm:inline">Về trang chủ</span>
+              <span className="hidden sm:inline text-[#000000]">Về trang chủ</span>
               <span className="sm:hidden">Trang chủ</span>
             </Button>
 
