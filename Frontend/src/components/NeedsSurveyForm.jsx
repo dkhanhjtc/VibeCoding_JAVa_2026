@@ -119,6 +119,7 @@ export const NeedsSurveyForm = ({
             value={formData.productCount}
             onChange={(e) => handleFieldChange('productCount', e.target.value)}
           >
+            <option value="">-- Chọn --</option>
             <option value="30">Dưới 30 sản phẩm</option>
             <option value="80">80 sản phẩm</option>
             <option value="300">300 sản phẩm</option>
@@ -131,6 +132,7 @@ export const NeedsSurveyForm = ({
             value={formData.websiteCount}
             onChange={(e) => handleFieldChange('websiteCount', e.target.value)}
           >
+            <option value="">-- Chọn --</option>
             <option value="1">1 website</option>
             <option value="3">3 website</option>
             <option value="5">Nhiều website</option>
@@ -203,6 +205,7 @@ export const NeedsSurveyForm = ({
           value={formData.techSkill}
           onChange={(e) => handleFieldChange('techSkill', e.target.value)}
         >
+          <option value="">-- Chọn --</option>
           <option value="beginner">Chưa rành, cần được hướng dẫn</option>
           <option value="intermediate">Biết cơ bản, có thể tự cài WordPress</option>
           <option value="expert">Rất rành kỹ thuật / Developer</option>
