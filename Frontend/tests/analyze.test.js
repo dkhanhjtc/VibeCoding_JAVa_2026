@@ -96,6 +96,30 @@ describe('POST /api/analyze', () => {
     expect(res.payload.fallback).toBe(true);
     expect(res.payload.bestMatchId).toBeUndefined();
   });
+  it('Gemini lỗi 503 lần đầu thì tự gọi lại và dùng kết quả lần hai', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: false, status: 503, json: async () => ({}) })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify(aiResponse) }] } }] }) });
+    vi.stubGlobal('fetch', fetchMock);
+    const res = await callHandler('POST', survey);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(res.payload.bestMatchId).toBe('standard');
+  });
+
+  it.each([[503, 2], [500, 2], [404, 1], [429, 1]])('Gemini lỗi %i thì gọi tổng cộng %i lần', async (status, calls) => {
+    const fetchMock = mockGemini('', status);
+    await callHandler('POST', survey);
+    expect(fetchMock).toHaveBeenCalledTimes(calls);
+  });
+
+  it('Gemini quá thời gian thì gọi lại một lần', async () => {
+    const timeout = Object.assign(new Error('timeout'), { name: 'TimeoutError' });
+    const fetchMock = vi.fn().mockRejectedValue(timeout);
+    vi.stubGlobal('fetch', fetchMock);
+    const res = await callHandler('POST', survey);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(res.payload.fallback).toBe(true);
+  });
 });
 
 describe('buildRecommendationPrompt', () => {

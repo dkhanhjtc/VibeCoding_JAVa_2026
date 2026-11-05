@@ -8,7 +8,11 @@ import { validateNeedsForm } from '../src/shared/validation.js';
 import { validateAIResponse } from '../src/shared/aiValidator.js';
 
 const DEFAULT_MODEL = 'gemini-3.5-flash-lite';
-const AI_TIMEOUT_MS = 12000;
+const AI_TIMEOUT_MS = 10000;
+const MAX_ATTEMPTS = 2;
+const RETRY_DELAY_MS = 1000;
+// Lỗi tạm thời phía Google: gọi lại một lần trước khi chuyển sang dự phòng
+const RETRYABLE_STATUS = [500, 503];
 
 const readText = (value) => (typeof value === 'string' ? value.trim() : '');
 
@@ -24,7 +28,7 @@ const readSurvey = (body) => ({
   domainIdea: readText(body?.domainIdea)
 });
 
-const callGemini = async (prompt, apiKey, model) => {
+const requestGemini = async (prompt, apiKey, model) => {
   const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
@@ -40,11 +44,27 @@ const callGemini = async (prompt, apiKey, model) => {
   });
 
   if (!response.ok) {
-    throw new Error(`Gemini API returned status ${response.status}`);
+    const error = new Error(`Gemini API returned status ${response.status}`);
+    error.status = response.status;
+    throw error;
   }
 
   const result = await response.json();
   return JSON.parse(result.candidates?.[0]?.content?.parts?.[0]?.text);
+};
+
+const isRetryable = (error) => RETRYABLE_STATUS.includes(error.status) || error.name === 'TimeoutError';
+
+const callGemini = async (prompt, apiKey, model) => {
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      return await requestGemini(prompt, apiKey, model);
+    } catch (error) {
+      if (attempt >= MAX_ATTEMPTS || !isRetryable(error)) throw error;
+      console.warn(`Gemini attempt ${attempt} failed: ${error.message}. Retrying...`);
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+    }
+  }
 };
 
 export default async function handler(req, res) {

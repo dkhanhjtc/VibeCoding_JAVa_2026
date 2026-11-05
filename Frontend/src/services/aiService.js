@@ -6,7 +6,7 @@
 import { calculateRecommendation } from '../shared/ruleEngine.js';
 import { validateAIResponse } from '../shared/aiValidator.js';
 
-const REQUEST_TIMEOUT_MS = 15000;
+const REQUEST_TIMEOUT_MS = 25000;
 
 export const requestHostingRecommendation = async (formData) => {
   try {
