@@ -97,6 +97,19 @@ export const DomainCard = ({
   costSummary,
   shopName = 'Mây Handmade'
 }) => {
+  if (!domainRecommendation) {
+    return (
+      <div className="bg-white border border-[#a1c0d1]/60 rounded-3xl p-5 sm:p-6 shadow-card">
+        <h4 className="text-base sm:text-lg font-bold text-[#00203d]">Không mua kèm tên miền</h4>
+        <p className="text-xs text-[#1f4f5a] mt-1">
+          Tổng năm đầu chỉ gồm hosting:{' '}
+          <strong className="text-[#00203d]">
+            {Number(costSummary?.totalFirstYear || bestMatch?.priceYearly || 0).toLocaleString('vi-VN')}đ
+          </strong>
+        </p>
+      </div>
+    );
+  }  
   const domain = domainRecommendation?.suggestedDomain || 'mayhandmade.vn';
   const domainPriceYearly = domainRecommendation?.priceYearly || 450000;
   const domainRenewalYearly = domainRecommendation?.renewalYearly || 550000;

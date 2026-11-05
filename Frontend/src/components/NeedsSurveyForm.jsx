@@ -166,6 +166,33 @@ export const NeedsSurveyForm = ({
           <option value={1000000}>Trên 1.000.000đ</option>
         </FormSelect>
 
+        {/* Có mua kèm tên miền không? */}
+        <div className="p-3.5 rounded-2xl bg-[#f0f4f8] border border-[#a1c0d1]/60 space-y-3">
+          <label htmlFor="needsDomain" className="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-[#00203d]">
+            <input
+              id="needsDomain"
+              type="checkbox"
+              checked={formData.needsDomain}
+              onChange={(e) => handleFieldChange('needsDomain', e.target.checked)}
+              className="w-4 h-4 rounded border-[#a1c0d1] accent-[#3b7a8c]"
+            />
+            Mua kèm tên miền cho shop
+          </label>
+
+          {formData.needsDomain && (
+            <FormInput
+              id="domainIdea"
+              label="Tên miền bạn thích (không dấu, viết liền)"
+              value={formData.domainIdea}
+              onChange={(e) => handleFieldChange('domainIdea', e.target.value)}
+              placeholder="Ví dụ: mayhandmade hoặc mayhandmade.vn"
+              helper="Để trống thì hệ thống tự gợi ý theo tên shop."
+              error={errors.domainIdea}
+              maxLength={63}
+            />
+          )}
+        </div>
+        
         {/* Bạn có rành kỹ thuật không? */}
         <FormSelect
           id="techSkill"

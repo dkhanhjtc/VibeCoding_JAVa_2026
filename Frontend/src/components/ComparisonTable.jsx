@@ -80,7 +80,7 @@ export const ComparisonTable = ({
       label: 'Tên miền đi kèm',
       getValue: () => `${domainName} +${domainPrice}`
     }
-  ];
+  ].filter((row) => row.key !== 'domain' || domainRecommendation);
 
   return (
     <div className="w-full">

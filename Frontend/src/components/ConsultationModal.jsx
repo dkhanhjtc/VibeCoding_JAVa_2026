@@ -95,9 +95,10 @@ export const ConsultationModal = ({
 
   const { name, priceMonthly, priceYearly, renewalYearly, storage, traffic, websites } = packageData;
   const formattedMonthly = Number(priceMonthly).toLocaleString('vi-VN');
-  const domainName = domainRecommendation?.suggestedDomain || 'mayhandmade.vn';
-  const domainPrice = domainRecommendation?.priceYearly || 450000;
-  const domainRenewal = domainRecommendation?.renewalYearly || 550000;
+  const hasDomain = Boolean(domainRecommendation);
+  const domainName = domainRecommendation?.suggestedDomain;
+  const domainPrice = domainRecommendation?.priceYearly || 0;
+  const domainRenewal = domainRecommendation?.renewalYearly || 0;
   const totalFirstYear = priceYearly + domainPrice;
   const totalRenewal = (renewalYearly || (priceYearly * 1.3)) + domainRenewal;
 
@@ -134,7 +135,7 @@ export const ConsultationModal = ({
         packageName: name,
         packagePrice: `${formattedMonthly}đ/tháng`,
         budget: surveyData?.budget || 150000,
-        domainIdea: domainName,
+        domainIdea: hasDomain ? domainName : 'Không mua kèm tên miền',
         note: `Tư vấn mở website: ${surveyData?.shopName || 'Mây Handmade'}`
       });
 
@@ -310,12 +311,14 @@ export const ConsultationModal = ({
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center text-[#1f4f5a]">
-                  <span className="truncate pr-2 font-mono text-[#00203d]">{domainName}</span>
-                  <span className="font-bold text-[#00203d] shrink-0">
-                    {Number(domainPrice).toLocaleString('vi-VN')}đ
-                  </span>
-                </div>
+                {hasDomain && (
+                  <div className="flex justify-between items-center text-[#1f4f5a]">
+                    <span className="truncate pr-2 font-mono text-[#00203d]">{domainName}</span>
+                    <span className="font-bold text-[#00203d] shrink-0">
+                      {Number(domainPrice).toLocaleString('vi-VN')}đ
+                    </span>
+                  </div>
+                )}
 
                 <div className="pt-3 border-t border-[#a1c0d1]/40 flex justify-between items-baseline">
                   <span className="font-bold text-[#0f383f] text-xs">Tổng năm đầu</span>
