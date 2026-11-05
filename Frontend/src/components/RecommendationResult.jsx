@@ -109,7 +109,7 @@ export const DomainCard = ({
   domainRecommendation,
   bestMatch,
   costSummary,
-  shopName = 'Mây Handmade'
+  shopName = ''
 }) => {
   if (!domainRecommendation) {
     return (
@@ -141,7 +141,7 @@ export const DomainCard = ({
         </h4>
       </div>
       <p className="text-xs text-[#1f4f5a] mb-4">
-        Ngắn gọn, dùng tên {shopName}, dễ đọc cho khách Việt.
+        Ngắn gọn, dễ đọc cho khách Việt{shopName ? `, dựa trên tên ${shopName}` : ''}.
       </p>
 
       {/* Input box displaying suggested domain */}

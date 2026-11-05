@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, ArrowRight, ShieldCheck, Bookmark } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { validatePhoneNumber } from '../shared/validation.js';
+import { validateConsultationForm } from '../shared/validation.js';
 import { saveLead } from '../services/leadsStore.js';
 import { Button, FormInput, SectionBadge } from './UIPrimitives.jsx';
 
@@ -17,10 +17,10 @@ export const ConsultationModal = ({
   onSuccess
 }) => {
   const [formData, setFormData] = useState({
-    fullName: 'Nguyễn Khánh Linh',
-    phone: '090 123 4567',
-    email: 'linh.mayhandmade@gmail.com',
-    agreed: true
+    fullName: '',
+    phone: '',
+    email: '',
+    agreed: false
   });
 
   const [errors, setErrors] = useState({});
@@ -31,10 +31,10 @@ export const ConsultationModal = ({
   useEffect(() => {
     if (isOpen) {
       setFormData({
-        fullName: 'Nguyễn Khánh Linh',
-        phone: '090 123 4567',
-        email: 'linh.mayhandmade@gmail.com',
-        agreed: true
+        fullName: '',
+        phone: '',
+        email: '',
+        agreed: false
       });
       setErrors({});
       setIsSubmitting(false);
@@ -104,17 +104,8 @@ export const ConsultationModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const newErrors = {};
-
-    if (!formData.fullName || formData.fullName.trim().length < 2) {
-      newErrors.fullName = 'Vui lòng nhập họ và tên của bạn';
-    }
-
     const cleanPhone = formData.phone.replace(/\s+/g, '');
-    const phoneVal = validatePhoneNumber(cleanPhone);
-    if (!phoneVal.isValid) {
-      newErrors.phone = phoneVal.error;
-    }
+    const newErrors = validateConsultationForm({ ...formData, phone: cleanPhone }).errors;
 
     if (!formData.agreed) {
       newErrors.agreed = 'Vui lòng xác nhận đồng ý điều khoản tư vấn';
@@ -136,7 +127,7 @@ export const ConsultationModal = ({
         packagePrice: `${formattedMonthly}đ/tháng`,
         budget: surveyData?.budget || 150000,
         domainIdea: hasDomain ? domainName : 'Không mua kèm tên miền',
-        note: `Tư vấn mở website: ${surveyData?.shopName || 'Mây Handmade'}`
+        note: `Tư vấn mở website: ${surveyData?.shopName || 'shop của bạn'}`
       });
 
       onSuccess?.(savedLead);
@@ -179,7 +170,7 @@ export const ConsultationModal = ({
         <div className="p-5 sm:p-7 pb-3 border-b border-[#a1c0d1]/40">
           <SectionBadge
             tag="03 / ĐĂNG KÝ TƯ VẤN"
-            title={`Bắt đầu cùng ${surveyData?.shopName || 'Mây Handmade'}`}
+            title={`Bắt đầu cùng ${surveyData?.shopName || 'shop của bạn'}`}
             subtitle="Một bước nhỏ để mở website cho shop. Chúng tôi sẽ hướng dẫn, bạn chưa cần thanh toán."
             className="mb-0 border-b-0 pb-0"
           />
@@ -219,11 +210,14 @@ export const ConsultationModal = ({
             <FormInput
               id="email"
               type="email"
-              label="Email"
-              required
+              label="Email (không bắt buộc)"
               value={formData.email}
-              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-              placeholder="linh.mayhandmade@gmail.com"
+              onChange={(e) => {
+                setFormData(prev => ({ ...prev, email: e.target.value }));
+                if (errors.email) setErrors(prev => ({ ...prev, email: null }));
+              }}
+              placeholder="ten@email.com"
+              error={errors.email}
             />
 
             {/* Checkbox agreement */}

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import Layout from './components/Layout.jsx';
@@ -25,15 +25,15 @@ export function App() {
   const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
 
   const [formData, setFormData] = useState({
-    shopName: 'Mây Handmade',
-    websiteType: 'ecommerce',
+    shopName: '',
+    websiteType: '',
     productCount: '80',
     websiteCount: '1',
-    traffic: '5k-20k',
-    budget: 150000,
+    traffic: '',
+    budget: '',
     techSkill: 'beginner',
     needsDomain: true,
-    domainIdea: 'mayhandmade.vn'
+    domainIdea: ''
   });
 
   const [recommendationData, setRecommendationData] = useState(null);
@@ -44,11 +44,6 @@ export function App() {
 
   const resultsRef = useRef(null);
 
-  // Khởi tạo một đề xuất mặc định ban đầu để trang luôn đầy đủ và trực quan giống bản mockup
-  useEffect(() => {
-    const initialRec = calculateRecommendation(formData);
-    setRecommendationData(initialRec);
-  }, []);
 
   // Smooth entrance when recommendation data updates or finishes loading
   useGSAP(() => {
@@ -228,6 +223,12 @@ export function App() {
               </div>
             ) : (
               <>
+                {!recommendationData && (
+                  <div className="p-6 bg-white rounded-3xl border border-dashed border-[#a1c0d1] text-center text-sm text-[#1f4f5a]">
+                    Điền nhu cầu bên trái rồi bấm <strong>Xem gợi ý cho shop</strong> để nhận 3 gói phù hợp.
+                  </div>
+                )}
+
                 <ComparisonTable
                   packages={allPackages}
                   bestMatchId={recommendationData?.bestMatch?.id}
@@ -235,24 +236,28 @@ export function App() {
                   onSelect={handleSelectPackage}
                 />
 
-                <DomainCard
-                  domainRecommendation={recommendationData?.domainRecommendation}
-                  bestMatch={recommendationData?.bestMatch}
-                  costSummary={recommendationData?.costSummary}
-                  shopName={formData.shopName}
-                />
+                {recommendationData && (
+                  <DomainCard
+                    domainRecommendation={recommendationData.domainRecommendation}
+                    bestMatch={recommendationData.bestMatch}
+                    costSummary={recommendationData.costSummary}
+                    shopName={formData.shopName}
+                  />
+                )}
               </>
             )}
           </div>
         </div>
 
         {/* ----------------- CALLOUT BANNER (SECTION 03) ----------------- */}
-        <section aria-label="Kêu gọi hành động" className="mb-10 sm:mb-14">
-          <CalloutBanner
-            bestMatch={recommendationData?.bestMatch}
-            onSelectPackage={handleSelectPackage}
-          />
-        </section>
+        {recommendationData && (
+          <section aria-label="Kêu gọi hành động" className="mb-10 sm:mb-14">
+            <CalloutBanner
+              bestMatch={recommendationData.bestMatch}
+              onSelectPackage={handleSelectPackage}
+            />
+          </section>
+        )}
 
         {/* ----------------- CÂU HỎI THƯỜNG GẶP (FAQ) ----------------- */}
         <section id="cau-hoi" aria-label="Câu hỏi thường gặp" className="mb-12">

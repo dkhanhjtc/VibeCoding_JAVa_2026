@@ -9,15 +9,15 @@ export const NeedsSurveyForm = ({
   isLoading = false
 }) => {
   const [formData, setFormData] = useState({
-    shopName: initialValues?.shopName || 'Mây Handmade',
-    websiteType: initialValues?.websiteType || 'ecommerce',
+    shopName: initialValues?.shopName || '',
+    websiteType: initialValues?.websiteType || '',
     productCount: initialValues?.productCount || '80',
     websiteCount: initialValues?.websiteCount || '1',
-    traffic: initialValues?.traffic || '5k-20k',
-    budget: initialValues?.budget || 150000,
+    traffic: initialValues?.traffic || '',
+    budget: initialValues?.budget || '',
     techSkill: initialValues?.techSkill || 'beginner',
     needsDomain: initialValues?.needsDomain ?? true,
-    domainIdea: initialValues?.domainIdea || 'mayhandmade.vn'
+    domainIdea: initialValues?.domainIdea || ''
   });
 
   const [errors, setErrors] = useState({});
@@ -73,7 +73,7 @@ export const NeedsSurveyForm = ({
       <SectionBadge
         tag="01 / HIỂU SHOP CỦA BẠN"
         title="Shop bạn cần gì?"
-        subtitle="Đã điền sẵn một ví dụ để bạn dễ hình dung."
+        subtitle="Bấm Mẫu nếu muốn xem nhanh một ví dụ."
         action={
           <Button
             variant="outline"
@@ -105,6 +105,7 @@ export const NeedsSurveyForm = ({
           onChange={(e) => handleFieldChange('websiteType', e.target.value)}
           error={errors.websiteType}
         >
+          <option value="">-- Chọn --</option>          
           <option value="ecommerce">Bán đồ handmade · WooCommerce</option>
           <option value="company">Giới thiệu doanh nghiệp / Dịch vụ</option>
           <option value="blog">Blog / Tin tức cá nhân</option>
@@ -145,8 +146,9 @@ export const NeedsSurveyForm = ({
           helper="Một lượt là một lần khách ghé website."
           error={errors.traffic}
         >
+          <option value="">-- Chọn --</option>
           <option value="<5k">Dưới 5.000 lượt</option>
-          <option value="5k-20k">Khoảng 5.000 lượt</option>
+          <option value="5k-20k">5.000 - 20.000 lượt</option>
           <option value="20k-100k">20.000 - 100.000 lượt</option>
           <option value=">100k">Trên 100.000 lượt</option>
         </FormSelect>
@@ -159,7 +161,8 @@ export const NeedsSurveyForm = ({
           onChange={(e) => handleFieldChange('budget', Number(e.target.value))}
           error={errors.budget}
         >
-          <option value={100000}>Dưới 100.000đ</option>
+          <option value="">-- Chọn --</option>
+          <option value={100000}>Tối đa 100.000đ</option>
           <option value={150000}>Tối đa 150.000đ</option>
           <option value={300000}>Tối đa 300.000đ</option>
           <option value={500000}>Tối đa 500.000đ</option>
@@ -218,7 +221,7 @@ export const NeedsSurveyForm = ({
             <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1 text-[#3b7a8c]" />
           </Button>
           <p className="text-center text-[11px] text-[#6b99ab] mt-2">
-            Gợi ý mẫu đã sẵn sàng bên dưới.
+            Chưa cần rành kỹ thuật, chỉ cần chọn theo nhu cầu.
           </p>
         </div>
       </form>
