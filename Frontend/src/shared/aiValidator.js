@@ -12,10 +12,13 @@ const MAX_TEXT_LENGTH = 300;
 
 const invalid = (error) => ({ isValid: false, error });
 
+// Chặn link và mã HTML để AI không chèn nội dung lạ vào giao diện
+const UNSAFE_TEXT = /https?:\/\/|www\.|<[^>]*>/i;
+
 const cleanText = (value, maxLength) => {
   if (typeof value !== 'string') return null;
   const text = value.trim();
-  return text && text.length <= maxLength ? text : null;
+  return text && text.length <= maxLength && !UNSAFE_TEXT.test(text) ? text : null;
 };
 
 export const validateAIResponse = (data, formData) => {

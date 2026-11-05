@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { requestHostingRecommendation } from '../src/services/aiService.js';
 import { clearTestLeads, exportLeadsToCSV, getLeads, saveLead } from '../src/services/leadsStore.js';
 
-const survey = { websiteType: 'ecommerce', traffic: '5k-20k', budget: 150000, needsDomain: false };
+const survey = { productCount: '80', websiteCount: '1', techSkill: 'beginner', websiteType: 'ecommerce', traffic: '5k-20k', budget: 150000, needsDomain: false };
 
 const aiResponse = {
   bestMatchId: 'standard',

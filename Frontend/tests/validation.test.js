@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { validateConsultationForm, validateNeedsForm, validatePhoneNumber } from '../src/shared/validation.js';
 
-const needs = { shopName: 'Gốm Xinh', websiteType: 'blog', traffic: '<5k', budget: 100000, needsDomain: true, domainIdea: 'gomxinh.com.vn' };
+const needs = { productCount: '80', websiteCount: '1', techSkill: 'beginner', shopName: 'Gốm Xinh', websiteType: 'blog', traffic: '<5k', budget: 100000, needsDomain: true, domainIdea: 'gomxinh.com.vn' };
 
 describe('validateNeedsForm', () => {
   it('chấp nhận dữ liệu đúng', () => {

@@ -16,6 +16,9 @@ const readSurvey = (body) => ({
   shopName: readText(body?.shopName),
   websiteType: readText(body?.websiteType),
   traffic: readText(body?.traffic),
+  productCount: readText(body?.productCount),
+  websiteCount: readText(body?.websiteCount),
+  techSkill: readText(body?.techSkill),  
   budget: Number(body?.budget),
   needsDomain: body?.needsDomain === true,
   domainIdea: readText(body?.domainIdea)

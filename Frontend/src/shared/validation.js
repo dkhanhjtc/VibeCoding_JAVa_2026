@@ -5,6 +5,9 @@
 import { TRAFFIC_TIERS } from './ruleEngine.js';
 
 const WEBSITE_TYPE_IDS = ['ecommerce', 'company', 'blog'];
+const PRODUCT_COUNTS = ['30', '80', '300', '1000'];
+const WEBSITE_COUNTS = ['1', '3', '5'];
+const TECH_SKILLS = ['beginner', 'intermediate', 'expert'];
 const MAX_SHOP_NAME_LENGTH = 60;
 const MAX_DOMAIN_LENGTH = 63;
 const MAX_BUDGET = 1000000000;

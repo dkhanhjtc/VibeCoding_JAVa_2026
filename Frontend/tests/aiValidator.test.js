@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { validateAIResponse } from '../src/shared/aiValidator.js';
 
-const survey = { shopName: 'Gốm Xinh', websiteType: 'ecommerce', traffic: '5k-20k', budget: 150000, needsDomain: true, domainIdea: 'gomxinh' };
+const survey = { productCount: '80', websiteCount: '1', techSkill: 'beginner', shopName: 'Gốm Xinh', websiteType: 'ecommerce', traffic: '5k-20k', budget: 150000, needsDomain: true, domainIdea: 'gomxinh' };
 
 const aiResponse = {
   bestMatchId: 'standard',
@@ -31,7 +31,8 @@ describe('validateAIResponse', () => {
     ['gói thay thế trùng gói tốt nhất', { ...aiResponse, alternativeIds: ['standard', 'pro'] }],
     ['thiếu lý do', { ...aiResponse, reasons: [] }],
     ['lý do không phải chuỗi', { ...aiResponse, reasons: ['ok', 42] }],
-    ['lý do quá dài', { ...aiResponse, reasons: ['ok', 'a'.repeat(301)] }],
+    ['lý do chứa link', { ...aiResponse, reasons: ['ok', 'Xem tại https://abc.vn'] }],
+    ['lý do chứa mã HTML', { ...aiResponse, reasons: ['ok', '<img src=x>'] }],
     ['đuôi tên miền lạ', { ...aiResponse, domainExtension: 'xyz' }]
   ])('từ chối: %s', (_label, response) => {
     expect(validateAIResponse(response, survey).isValid).toBe(false);
