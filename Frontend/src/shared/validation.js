@@ -47,6 +47,18 @@ export const validateNeedsForm = (formData) => {
     errors.websiteType = 'Vui lòng chọn loại website bạn muốn làm';
   }
 
+  if (!formData.productCount) {
+    errors.productCount = 'Vui lòng chọn số sản phẩm';
+  }
+
+  if (!formData.websiteCount) {
+    errors.websiteCount = 'Vui lòng chọn số website';
+  }
+
+  if (!formData.techSkill) {
+    errors.techSkill = 'Vui lòng chọn mức độ rành kỹ thuật';
+  }
+
   if (!TRAFFIC_TIERS[formData.traffic]) {
     errors.traffic = 'Vui lòng chọn ước tính lượng truy cập mỗi tháng';
   }

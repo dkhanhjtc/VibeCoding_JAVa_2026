@@ -27,11 +27,11 @@ export function App() {
   const [formData, setFormData] = useState({
     shopName: '',
     websiteType: '',
-    productCount: '80',
-    websiteCount: '1',
+    productCount: '',
+    websiteCount: '',
     traffic: '',
     budget: '',
-    techSkill: 'beginner',
+    techSkill: '',
     needsDomain: true,
     domainIdea: ''
   });

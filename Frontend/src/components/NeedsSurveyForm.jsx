@@ -11,11 +11,11 @@ export const NeedsSurveyForm = ({
   const [formData, setFormData] = useState({
     shopName: initialValues?.shopName || '',
     websiteType: initialValues?.websiteType || '',
-    productCount: initialValues?.productCount || '80',
-    websiteCount: initialValues?.websiteCount || '1',
+    productCount: initialValues?.productCount || '',
+    websiteCount: initialValues?.websiteCount || '',
     traffic: initialValues?.traffic || '',
     budget: initialValues?.budget || '',
-    techSkill: initialValues?.techSkill || 'beginner',
+    techSkill: initialValues?.techSkill || '',
     needsDomain: initialValues?.needsDomain ?? true,
     domainIdea: initialValues?.domainIdea || ''
   });
@@ -52,6 +52,9 @@ export const NeedsSurveyForm = ({
     e.preventDefault();
     const validation = validateNeedsForm({
       websiteType: formData.websiteType,
+      productCount: formData.productCount,
+      websiteCount: formData.websiteCount,
+      techSkill: formData.techSkill,
       traffic: formData.traffic,
       budget: formData.budget,
       needsDomain: formData.needsDomain,
@@ -118,6 +121,7 @@ export const NeedsSurveyForm = ({
             label="Số sản phẩm"
             value={formData.productCount}
             onChange={(e) => handleFieldChange('productCount', e.target.value)}
+            error={errors.productCount}
           >
             <option value="">-- Chọn --</option>
             <option value="30">Dưới 30 sản phẩm</option>
@@ -131,6 +135,7 @@ export const NeedsSurveyForm = ({
             label="Số website"
             value={formData.websiteCount}
             onChange={(e) => handleFieldChange('websiteCount', e.target.value)}
+            error={errors.websiteCount}
           >
             <option value="">-- Chọn --</option>
             <option value="1">1 website</option>
@@ -204,6 +209,7 @@ export const NeedsSurveyForm = ({
           label="Bạn có rành kỹ thuật không?"
           value={formData.techSkill}
           onChange={(e) => handleFieldChange('techSkill', e.target.value)}
+          error={errors.techSkill}
         >
           <option value="">-- Chọn --</option>
           <option value="beginner">Chưa rành, cần được hướng dẫn</option>
