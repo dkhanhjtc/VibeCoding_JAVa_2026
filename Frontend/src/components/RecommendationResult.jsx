@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Check, Globe, ArrowRight } from 'lucide-react';
+import { Sparkles, Check, Globe, ArrowRight, AlertTriangle } from 'lucide-react';
 import { Button } from './UIPrimitives.jsx';
 
 /**
@@ -10,7 +10,10 @@ export const AIExplainerCard = ({ recommendationData }) => {
 
   const {
     isFallback,
+    provider,
     bestMatch,
+    headline,
+    budgetNote,
     reasons = []
   } = recommendationData;
 
@@ -23,13 +26,24 @@ export const AIExplainerCard = ({ recommendationData }) => {
           <span>AI giải thích</span>
         </div>
         <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#f0f4f8] text-[#0f383f] border border-[#a1c0d1]">
-          {isFallback ? 'HostWise Engine' : 'Từ AI'}
+          {isFallback ? 'Dự phòng · không dùng AI' : 'Gemini AI'}
         </span>
       </div>
+      {provider && (
+        <p className="-mt-2 mb-3 text-[11px] text-[#6b99ab]">Nguồn: {provider}</p>
+      )}      
 
       <h3 className="text-lg sm:text-xl font-black text-[#00203d] tracking-tight leading-snug">
-        {bestMatch?.name || 'Đồng hành'} là vừa đủ. Chưa cần gói lớn hơn.
+        {headline || `Gói ${bestMatch?.name} là lựa chọn phù hợp cho bạn`}
       </h3>
+
+      {/* Cảnh báo khi gói tối ưu vượt ngân sách */}
+      {budgetNote && (
+        <div role="alert" className="mt-3 p-3 rounded-2xl bg-amber-50 border border-amber-200 flex items-start gap-2 text-xs text-amber-900">
+          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          <p className="leading-relaxed">{budgetNote.message}</p>
+        </div>
+      )}
 
       {/* Bullet points with checkmarks */}
       <ul className="mt-4 space-y-3">
