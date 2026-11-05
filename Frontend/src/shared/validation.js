@@ -50,15 +50,15 @@ export const validateNeedsForm = (formData) => {
     errors.websiteType = 'Vui lòng chọn loại website bạn muốn làm';
   }
 
-  if (!formData.productCount) {
+  if (!PRODUCT_COUNTS.includes(formData.productCount)) {
     errors.productCount = 'Vui lòng chọn số sản phẩm';
   }
 
-  if (!formData.websiteCount) {
+  if (!WEBSITE_COUNTS.includes(formData.websiteCount)) {
     errors.websiteCount = 'Vui lòng chọn số website';
   }
 
-  if (!formData.techSkill) {
+  if (!TECH_SKILLS.includes(formData.techSkill)) {
     errors.techSkill = 'Vui lòng chọn mức độ rành kỹ thuật';
   }
 
