@@ -17,7 +17,7 @@ const fillRequired = (field) => {
   fireEvent.change(field('websiteType'), { target: { value: 'ecommerce' } });
   fireEvent.change(field('traffic'), { target: { value: '5k-20k' } });
   fireEvent.change(field('budget'), { target: { value: '150000' } });
-  fireEvent.change(field('productCount'), { target: { value: '80' } });
+  fireEvent.change(field('productCount'), { target: { value: '30-100' } });
   fireEvent.change(field('websiteCount'), { target: { value: '1' } });
   fireEvent.change(field('techSkill'), { target: { value: 'beginner' } });
 };
@@ -88,5 +88,31 @@ describe('NeedsSurveyForm', () => {
     fireEvent.click(screen.getByRole('button', { name: /Mẫu/ }));
     fireEvent.submit(form);
     expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ shopName: 'Mây Handmade' }));
+  });
+
+  it('chọn loại website Khác thì hiện ô nhập và bắt buộc nhập', () => {
+    const { onSubmit, form, field } = renderForm();
+    fillRequired(field);
+    expect(field('websiteTypeOther')).toBeNull();
+    fireEvent.change(field('websiteType'), { target: { value: 'other' } });
+    expect(field('websiteTypeOther')).toBeTruthy();
+    fireEvent.submit(form);
+    expect(onSubmit).not.toHaveBeenCalled();
+    fireEvent.change(field('websiteTypeOther'), { target: { value: 'Website đặt lịch spa' } });
+    fireEvent.submit(form);
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ websiteType: 'other', websiteTypeOther: 'Website đặt lịch spa' }));
+  });
+
+  it('chọn trên 5 website thì hiện ô nhập số lượng', () => {
+    const { onSubmit, form, field } = renderForm();
+    fillRequired(field);
+    expect(field('websiteCountCustom')).toBeNull();
+    fireEvent.change(field('websiteCount'), { target: { value: '>5' } });
+    fireEvent.change(field('websiteCountCustom'), { target: { value: '12' } });
+    fireEvent.submit(form);
+    expect(onSubmit).not.toHaveBeenCalled();
+    fireEvent.change(field('websiteCountCustom'), { target: { value: '8' } });
+    fireEvent.submit(form);
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ websiteCount: '>5', websiteCountCustom: '8' }));
   });
 });

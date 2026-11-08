@@ -27,8 +27,10 @@ export function App() {
   const [formData, setFormData] = useState({
     shopName: '',
     websiteType: '',
+    websiteTypeOther: '',
     productCount: '',
     websiteCount: '',
+    websiteCountCustom: '',
     traffic: '',
     budget: '',
     techSkill: '',

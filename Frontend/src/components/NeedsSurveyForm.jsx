@@ -11,8 +11,10 @@ export const NeedsSurveyForm = ({
   const [formData, setFormData] = useState({
     shopName: initialValues?.shopName || '',
     websiteType: initialValues?.websiteType || '',
+    websiteTypeOther: initialValues?.websiteTypeOther || '',
     productCount: initialValues?.productCount || '',
     websiteCount: initialValues?.websiteCount || '',
+    websiteCountCustom: initialValues?.websiteCountCustom || '',
     traffic: initialValues?.traffic || '',
     budget: initialValues?.budget || '',
     techSkill: initialValues?.techSkill || '',
@@ -37,8 +39,10 @@ export const NeedsSurveyForm = ({
     setFormData({
       shopName: 'Mây Handmade',
       websiteType: 'ecommerce',
-      productCount: '80',
+      websiteTypeOther: '',
+      productCount: '30-100',
       websiteCount: '1',
+      websiteCountCustom: '',
       traffic: '5k-20k',
       budget: 150000,
       techSkill: 'beginner',
@@ -50,16 +54,7 @@ export const NeedsSurveyForm = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const validation = validateNeedsForm({
-      websiteType: formData.websiteType,
-      productCount: formData.productCount,
-      websiteCount: formData.websiteCount,
-      techSkill: formData.techSkill,
-      traffic: formData.traffic,
-      budget: formData.budget,
-      needsDomain: formData.needsDomain,
-      domainIdea: formData.domainIdea
-    });
+    const validation = validateNeedsForm(formData);
 
     if (!validation.isValid) {
       setErrors(validation.errors);
@@ -108,11 +103,24 @@ export const NeedsSurveyForm = ({
           onChange={(e) => handleFieldChange('websiteType', e.target.value)}
           error={errors.websiteType}
         >
-          <option value="">-- Chọn --</option>          
+          <option value="">-- Chọn --</option>
           <option value="ecommerce">Bán đồ handmade · WooCommerce</option>
           <option value="company">Giới thiệu doanh nghiệp / Dịch vụ</option>
           <option value="blog">Blog / Tin tức cá nhân</option>
+          <option value="other">Khác (tự nhập)</option>
         </FormSelect>
+
+        {formData.websiteType === 'other' && (
+          <FormInput
+            id="websiteTypeOther"
+            label="Loại website của bạn"
+            value={formData.websiteTypeOther}
+            onChange={(e) => handleFieldChange('websiteTypeOther', e.target.value)}
+            placeholder="Ví dụ: Website đặt lịch spa"
+            error={errors.websiteTypeOther}
+            maxLength={60}
+          />
+        )}
 
         {/* Row: Số sản phẩm & Số website */}
         <div className="grid grid-cols-2 gap-3">
@@ -124,10 +132,10 @@ export const NeedsSurveyForm = ({
             error={errors.productCount}
           >
             <option value="">-- Chọn --</option>
-            <option value="30">Dưới 30 sản phẩm</option>
-            <option value="80">80 sản phẩm</option>
-            <option value="300">300 sản phẩm</option>
-            <option value="1000">Trên 1.000 sản phẩm</option>
+            <option value="<30">Dưới 30 sản phẩm</option>
+            <option value="30-100">30 - 100 sản phẩm</option>
+            <option value="100-300">100 - 300 sản phẩm</option>
+            <option value=">300">Trên 300 sản phẩm</option>
           </FormSelect>
 
           <FormSelect
@@ -139,10 +147,27 @@ export const NeedsSurveyForm = ({
           >
             <option value="">-- Chọn --</option>
             <option value="1">1 website</option>
-            <option value="3">3 website</option>
-            <option value="5">Nhiều website</option>
+            <option value="2-3">2 - 3 website</option>
+            <option value="4-5">4 - 5 website</option>
+            <option value=">5">Trên 5 (tự nhập)</option>
           </FormSelect>
         </div>
+
+        {formData.websiteCount === '>5' && (
+          <FormInput
+            id="websiteCountCustom"
+            type="number"
+            min="6"
+            max="10"
+            step="1"
+            label="Số website bạn cần"
+            value={formData.websiteCountCustom}
+            onChange={(e) => handleFieldChange('websiteCountCustom', e.target.value)}
+            placeholder="Từ 6 đến 10"
+            helper="Gói lớn nhất chạy được 10 website."
+            error={errors.websiteCountCustom}
+          />
+        )}
 
         {/* Lượt khách dự kiến mỗi tháng */}
         <FormSelect

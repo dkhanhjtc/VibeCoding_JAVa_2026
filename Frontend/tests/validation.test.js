@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { validateConsultationForm, validateNeedsForm, validatePhoneNumber } from '../src/shared/validation.js';
 
-const needs = { productCount: '80', websiteCount: '1', techSkill: 'beginner', shopName: 'Gốm Xinh', websiteType: 'blog', traffic: '<5k', budget: 100000, needsDomain: true, domainIdea: 'gomxinh.com.vn' };
+const needs = { productCount: '30-100', websiteCount: '1', techSkill: 'beginner', shopName: 'Gốm Xinh', websiteType: 'blog', traffic: '<5k', budget: 100000, needsDomain: true, domainIdea: 'gomxinh.com.vn' };
 
 describe('validateNeedsForm', () => {
   it('chấp nhận dữ liệu đúng', () => {
@@ -23,6 +23,24 @@ describe('validateNeedsForm', () => {
     ['shopName', { shopName: 'a'.repeat(61) }]
   ])('báo lỗi trường %s với %o', (field, override) => {
     expect(validateNeedsForm({ ...needs, ...override }).errors[field]).toBeTruthy();
+  });
+
+  it.each([
+    ['websiteTypeOther', { websiteType: 'other', websiteTypeOther: '' }],
+    ['websiteTypeOther', { websiteType: 'other', websiteTypeOther: 'a'.repeat(61) }],
+    ['websiteCountCustom', { websiteCount: '>5', websiteCountCustom: '' }],
+    ['websiteCountCustom', { websiteCount: '>5', websiteCountCustom: '5' }],
+    ['websiteCountCustom', { websiteCount: '>5', websiteCountCustom: '11' }],
+    ['websiteCountCustom', { websiteCount: '>5', websiteCountCustom: '7.5' }],
+    ['productCount', { productCount: '80' }],
+    ['websiteCount', { websiteCount: '3' }]
+  ])('báo lỗi trường %s với %o', (field, override) => {
+    expect(validateNeedsForm({ ...needs, ...override }).errors[field]).toBeTruthy();
+  });
+
+  it('chấp nhận loại website khác có nhập tên và số website tự nhập hợp lệ', () => {
+    const result = validateNeedsForm({ ...needs, websiteType: 'other', websiteTypeOther: 'Website đặt lịch spa', websiteCount: '>5', websiteCountCustom: '8' });
+    expect(result.isValid).toBe(true);
   });
 
   it('không mua tên miền thì bỏ qua ý tưởng tên miền', () => {

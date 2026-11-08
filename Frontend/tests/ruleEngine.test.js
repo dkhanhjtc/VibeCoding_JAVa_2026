@@ -46,6 +46,28 @@ describe('calculateRecommendation', () => {
     expect(calculateRecommendation({ ...survey, budget: 60000 }).bestMatch.id).toBe('entry');
   });
 
+  it.each([
+    ['1', '', 'entry'],
+    ['2-3', '', 'pro'],
+    ['4-5', '', 'turbo'],
+    ['>5', '8', 'enterprise']
+  ])('cần %s website (tự nhập: "%s") thì gói tối thiểu là %s', (websiteCount, websiteCountCustom, expected) => {
+    const result = calculateRecommendation({ traffic: '<5k', websiteType: 'blog', budget: 1000000, websiteCount, websiteCountCustom });
+    expect(result.bestMatch.id).toBe(expected);
+  });
+
+  it('cần nhiều website mà thiếu ngân sách thì vẫn giữ gói đủ website và cảnh báo', () => {
+    const result = calculateRecommendation({ traffic: '<5k', websiteType: 'company', budget: 100000, websiteCount: '2-3' });
+    expect(result.bestMatch.id).toBe('pro');
+    expect(result.budgetNote.gap).toBe(79000);
+    expect(result.reasons.some(reason => reason.includes('3 website'))).toBe(true);
+  });
+
+  it('loại website khác được xử lý như website thường, không bị ép lên gói bán hàng', () => {
+    const result = calculateRecommendation({ traffic: '<5k', websiteType: 'other', budget: 1000000, websiteCount: '1' });
+    expect(result.bestMatch.id).toBe('entry');
+  });
+
   it('blog không bị đẩy lên gói lớn hơn dù ngân sách dư', () => {
     const result = calculateRecommendation({ traffic: '<5k', websiteType: 'blog', budget: 1000000 });
     expect(result.bestMatch.id).toBe('entry');

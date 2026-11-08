@@ -5,7 +5,7 @@
  */
 
 import { HOSTING_PACKAGES, DOMAIN_PRICING, getPackageById } from './packages.js';
-import { buildCostSummary, buildDomainRecommendation, getBudgetNote, getMinimumPackageIndex } from './ruleEngine.js';
+import { buildCostSummary, buildDomainRecommendation, getBudgetNote, getMinimumPackageIndex, getWebsitesNeeded } from './ruleEngine.js';
 
 const MAX_HEADLINE_LENGTH = 120;
 const MAX_TEXT_LENGTH = 300;
@@ -41,9 +41,9 @@ export const validateAIResponse = (data, formData) => {
   // Chặn gợi ý sai nghiệp vụ: gói quá nhỏ so với lượng khách, hoặc vượt ngân sách không cần thiết
   const budget = Number(formData.budget);
   const bestIndex = HOSTING_PACKAGES.indexOf(bestMatch);
-  const minimumIndex = getMinimumPackageIndex(formData.traffic);
+  const minimumIndex = getMinimumPackageIndex(formData.traffic, getWebsitesNeeded(formData));
   if (bestIndex < minimumIndex) {
-    return invalid('Gói được chọn quá nhỏ so với lượng khách dự kiến');
+    return invalid('Gói được chọn quá nhỏ so với lượng khách hoặc số website cần chạy');
   }
   if (bestMatch.priceMonthly > budget && bestIndex !== minimumIndex) {
     return invalid('Gói được chọn vượt ngân sách trong khi có gói nhỏ hơn vẫn đáp ứng được');

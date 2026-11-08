@@ -19,9 +19,11 @@ const readText = (value) => (typeof value === 'string' ? value.trim() : '');
 const readSurvey = (body) => ({
   shopName: readText(body?.shopName),
   websiteType: readText(body?.websiteType),
+  websiteTypeOther: readText(body?.websiteTypeOther),
   traffic: readText(body?.traffic),
   productCount: readText(body?.productCount),
   websiteCount: readText(body?.websiteCount),
+  websiteCountCustom: readText(String(body?.websiteCountCustom ?? '')),
   techSkill: readText(body?.techSkill),  
   budget: Number(body?.budget),
   needsDomain: body?.needsDomain === true,

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { validateAIResponse } from '../src/shared/aiValidator.js';
 
-const survey = { productCount: '80', websiteCount: '1', techSkill: 'beginner', shopName: 'Gốm Xinh', websiteType: 'ecommerce', traffic: '5k-20k', budget: 150000, needsDomain: true, domainIdea: 'gomxinh' };
+const survey = { productCount: '30-100', websiteCount: '1', techSkill: 'beginner', shopName: 'Gốm Xinh', websiteType: 'ecommerce', traffic: '5k-20k', budget: 150000, needsDomain: true, domainIdea: 'gomxinh' };
 
 const aiResponse = {
   bestMatchId: 'standard',
@@ -46,6 +46,10 @@ describe('validateAIResponse', () => {
   it('từ chối gói vượt ngân sách khi gói nhỏ hơn vẫn đủ', () => {
     const response = { ...aiResponse, bestMatchId: 'pro', alternativeIds: ['entry', 'standard'] };
     expect(validateAIResponse(response, survey).isValid).toBe(false);
+  });
+
+  it('từ chối gói không chạy đủ số website cần', () => {
+    expect(validateAIResponse(aiResponse, { ...survey, websiteCount: '2-3' }).isValid).toBe(false);
   });
 
   it('chấp nhận gói tối thiểu vượt ngân sách và kèm cảnh báo', () => {

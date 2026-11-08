@@ -16,22 +16,35 @@ export const TRAFFIC_TIERS = {
 const STORAGE_REASONS = {
   ecommerce: 'đủ chứa ảnh sản phẩm và dữ liệu đơn hàng của shop',
   company: 'đủ cho các trang giới thiệu, hình ảnh và hồ sơ công ty',
-  blog: 'đủ cho bài viết và hình ảnh minh họa'
+  blog: 'đủ cho bài viết và hình ảnh minh họa',
+  other: 'đủ cho nội dung và hình ảnh của website'
 };
+
+// Số website tối đa trong mỗi khoảng lựa chọn của form
+const WEBSITE_COUNT_NEEDS = { '1': 1, '2-3': 3, '4-5': 5 };
 
 const formatVnd = (value) => Number(value).toLocaleString('vi-VN');
 
 const packageIndex = (id) => HOSTING_PACKAGES.findIndex(pkg => pkg.id === id);
 
-export const getMinimumPackageIndex = (traffic) => {
-  return packageIndex((TRAFFIC_TIERS[traffic] || TRAFFIC_TIERS['5k-20k']).minId);
+export const getWebsitesNeeded = ({ websiteCount, websiteCountCustom } = {}) => {
+  if (websiteCount === '>5') return Number(websiteCountCustom) || 6;
+  return WEBSITE_COUNT_NEEDS[websiteCount] || 1;
 };
 
-const pickBestIndex = (traffic, websiteType, budget) => {
+// Gói nhỏ nhất vừa chịu được lượng khách vừa chạy đủ số website
+export const getMinimumPackageIndex = (traffic, websitesNeeded = 1) => {
+  const trafficIndex = packageIndex((TRAFFIC_TIERS[traffic] || TRAFFIC_TIERS['5k-20k']).minId);
+  const websitesIndex = HOSTING_PACKAGES.findIndex(pkg => pkg.websites >= websitesNeeded);
+  return Math.max(trafficIndex, websitesIndex === -1 ? HOSTING_PACKAGES.length - 1 : websitesIndex);
+};
+
+const pickBestIndex = (traffic, websiteType, budget, websitesNeeded) => {
   const tier = TRAFFIC_TIERS[traffic] || TRAFFIC_TIERS['5k-20k'];
+  const minimumIndex = getMinimumPackageIndex(traffic, websitesNeeded);
   // Shop bán hàng cần sao lưu hằng ngày và dung lượng ảnh nên tối thiểu là gói Đồng hành
-  const comfortIndex = Math.max(packageIndex(tier.comfortId), websiteType === 'ecommerce' ? 1 : 0);
-  return HOSTING_PACKAGES[comfortIndex].priceMonthly <= budget ? comfortIndex : packageIndex(tier.minId);
+  const comfortIndex = Math.max(packageIndex(tier.comfortId), websiteType === 'ecommerce' ? 1 : 0, minimumIndex);
+  return HOSTING_PACKAGES[comfortIndex].priceMonthly <= budget ? comfortIndex : minimumIndex;
 };
 
 const pickAlternatives = (bestIndex, budget) => {
@@ -52,7 +65,7 @@ export const getBudgetNote = (pkg, budget) => {
   if (gap <= 0) return null;
   return {
     gap,
-    message: `Gói này cao hơn ngân sách ${formatVnd(budget)}đ/tháng của bạn ${formatVnd(gap)}đ/tháng, vì đây là gói nhỏ nhất đủ sức phục vụ lượng khách bạn dự kiến.`
+    message: `Gói này cao hơn ngân sách ${formatVnd(budget)}đ/tháng của bạn ${formatVnd(gap)}đ/tháng, vì đây là gói nhỏ nhất đủ cho lượng khách và số website bạn cần.`
   };
 };
 
@@ -99,13 +112,14 @@ export const calculateRecommendation = (formData) => {
   const { websiteType = 'ecommerce', traffic = '5k-20k', budget = 150000, needsDomain = true } = formData;
   const numBudget = Number(budget) || 150000;
   const tier = TRAFFIC_TIERS[traffic] || TRAFFIC_TIERS['5k-20k'];
+  const websitesNeeded = getWebsitesNeeded(formData);
 
-  const bestIndex = pickBestIndex(traffic, websiteType, numBudget);
+  const bestIndex = pickBestIndex(traffic, websiteType, numBudget, websitesNeeded);
   const bestPackage = HOSTING_PACKAGES[bestIndex];
   const budgetNote = getBudgetNote(bestPackage, numBudget);
 
   const headline = budgetNote
-    ? `Gói ${bestPackage.name} là mức tối thiểu cho lượng khách của bạn`
+    ? `Gói ${bestPackage.name} là mức tối thiểu cho nhu cầu của bạn`
     : `Gói ${bestPackage.name} là vừa đủ. Chưa cần gói lớn hơn.`;
 
   // Phân tích lý do bình dân, dễ hiểu cho chủ shop
@@ -114,6 +128,9 @@ export const calculateRecommendation = (formData) => {
     `Dung lượng ${bestPackage.storage} ${STORAGE_REASONS[websiteType] || STORAGE_REASONS.ecommerce}.`,
     `Dữ liệu được sao lưu tự động (${bestPackage.backup.toLowerCase()}), lỡ thao tác nhầm vẫn khôi phục được.`
   ];
+  if (websitesNeeded > 1) {
+    reasons.splice(1, 0, `Bạn cần ${websitesNeeded} website, gói này chạy được tối đa ${bestPackage.websites} website.`);
+  }
   if (!budgetNote) {
     reasons.push(`Chi phí ${formatVnd(bestPackage.priceMonthly)}đ/tháng nằm trong ngân sách ${formatVnd(numBudget)}đ/tháng của bạn.`);
   }

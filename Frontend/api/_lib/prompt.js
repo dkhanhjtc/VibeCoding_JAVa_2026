@@ -4,7 +4,7 @@
  */
 
 import { HOSTING_PACKAGES } from '../../src/shared/packages.js';
-import { TRAFFIC_TIERS } from '../../src/shared/ruleEngine.js';
+import { getMinimumPackageIndex, getWebsitesNeeded } from '../../src/shared/ruleEngine.js';
 
 const PACKAGE_IDS = HOSTING_PACKAGES.map(pkg => pkg.id);
 
@@ -26,7 +26,8 @@ const buildCatalog = () => HOSTING_PACKAGES.map(({ id, name, priceMonthly, stora
 }));
 
 export const buildRecommendationPrompt = (surveyData) => {
-  const minimumId = TRAFFIC_TIERS[surveyData.traffic].minId;
+  const websitesNeeded = getWebsitesNeeded(surveyData);
+  const minimumId = HOSTING_PACKAGES[getMinimumPackageIndex(surveyData.traffic, websitesNeeded)].id;
 
   return `
 Bạn là chuyên gia tư vấn hosting và tên miền cho chủ shop online nhỏ tại Việt Nam, những người không rành kỹ thuật.
@@ -35,7 +36,8 @@ DANH MỤC GÓI (chỉ được chọn trong danh mục này, không tự nghĩ 
 ${JSON.stringify(buildCatalog(), null, 2)}
 
 QUY TẮC CHỌN GÓI:
-- Gói nhỏ nhất đủ sức cho lượng khách này là "${minimumId}". Không chọn gói nhỏ hơn.
+- Shop cần chạy ${websitesNeeded} website; trường websites trong danh mục là số website tối đa của mỗi gói.
+- Gói nhỏ nhất đủ cho lượng khách và số website này là "${minimumId}". Không chọn gói nhỏ hơn.
 - Ưu tiên gói có priceMonthly không vượt quá ngân sách. Chỉ khi cả gói "${minimumId}" cũng vượt ngân sách thì mới chọn đúng gói "${minimumId}".
 - Không đề xuất gói lớn hơn nhu cầu chỉ vì ngân sách dư.
 - alternativeIds có đúng 2 gói khác nhau và khác bestMatchId. Nếu gói tốt nhất vượt ngân sách, hãy đưa vào gói lớn nhất còn nằm trong ngân sách.
@@ -50,8 +52,9 @@ QUY TẮC VIẾT:
 THÔNG TIN SHOP (chỉ gồm các lựa chọn có sẵn trong form):
 ${JSON.stringify({
     websiteType: surveyData.websiteType,
-    websiteTypeMeaning: 'ecommerce: bán hàng có giỏ hàng, company: giới thiệu doanh nghiệp, blog: viết bài chia sẻ',
+    websiteTypeMeaning: 'ecommerce: bán hàng có giỏ hàng, company: giới thiệu doanh nghiệp, blog: viết bài chia sẻ, other: loại website khác',
     monthlyVisits: surveyData.traffic,
+    websitesNeeded,
     monthlyBudgetVnd: surveyData.budget,
     needsDomain: surveyData.needsDomain
   }, null, 2)}

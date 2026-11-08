@@ -4,10 +4,12 @@
 
 import { TRAFFIC_TIERS } from './ruleEngine.js';
 
-const WEBSITE_TYPE_IDS = ['ecommerce', 'company', 'blog'];
-const PRODUCT_COUNTS = ['30', '80', '300', '1000'];
-const WEBSITE_COUNTS = ['1', '3', '5'];
+const WEBSITE_TYPE_IDS = ['ecommerce', 'company', 'blog', 'other'];
+const PRODUCT_COUNTS = ['<30', '30-100', '100-300', '>300'];
+const WEBSITE_COUNTS = ['1', '2-3', '4-5', '>5'];
 const TECH_SKILLS = ['beginner', 'intermediate', 'expert'];
+const MIN_CUSTOM_WEBSITES = 6;
+const MAX_CUSTOM_WEBSITES = 10;
 const MAX_SHOP_NAME_LENGTH = 60;
 const MAX_DOMAIN_LENGTH = 63;
 const MAX_BUDGET = 1000000000;
@@ -48,6 +50,11 @@ export const validateNeedsForm = (formData) => {
 
   if (!WEBSITE_TYPE_IDS.includes(formData.websiteType)) {
     errors.websiteType = 'Vui lòng chọn loại website bạn muốn làm';
+  } else if (formData.websiteType === 'other') {
+    const otherType = (formData.websiteTypeOther || '').trim();
+    if (otherType.length < 2 || otherType.length > MAX_SHOP_NAME_LENGTH) {
+      errors.websiteTypeOther = `Vui lòng nhập loại website (2 - ${MAX_SHOP_NAME_LENGTH} ký tự)`;
+    }
   }
 
   if (!PRODUCT_COUNTS.includes(formData.productCount)) {
@@ -56,6 +63,11 @@ export const validateNeedsForm = (formData) => {
 
   if (!WEBSITE_COUNTS.includes(formData.websiteCount)) {
     errors.websiteCount = 'Vui lòng chọn số website';
+  } else if (formData.websiteCount === '>5') {
+    const customCount = Number(formData.websiteCountCustom);
+    if (!Number.isInteger(customCount) || customCount < MIN_CUSTOM_WEBSITES || customCount > MAX_CUSTOM_WEBSITES) {
+      errors.websiteCountCustom = `Vui lòng nhập số website từ ${MIN_CUSTOM_WEBSITES} đến ${MAX_CUSTOM_WEBSITES}`;
+    }
   }
 
   if (!TECH_SKILLS.includes(formData.techSkill)) {

@@ -12,7 +12,7 @@ Giá và thông số các gói trong app là dữ liệu minh họa, không ph�
 
 Theo yêu cầu đề bài:
 
-1. **Form nhu cầu:** loại website, lượt truy cập mỗi tháng, ngân sách, có mua kèm tên miền không (kèm ô nhập ý tưởng tên miền).
+1. **Form nhu cầu:** loại website (có lựa chọn "Khác" để tự nhập), số sản phẩm, số website (trên 5 thì tự nhập số), lượt truy cập mỗi tháng, ngân sách, có mua kèm tên miền không (kèm ô nhập ý tưởng tên miền).
 2. **AI gợi ý** 1 gói phù hợp nhất và 2 gói thay thế, giải thích bằng tiếng Việt đơn giản.
 3. **Bảng so sánh** 3 gói được gợi ý: giá, dung lượng, lượt khách, số website, sao lưu, hỗ trợ.
 4. **Đăng ký tư vấn:** nhập tên và số điện thoại, lưu vào danh sách khách hàng trong localStorage.
@@ -40,7 +40,7 @@ Mở http://localhost:5173. Điền `GEMINI_API_KEY` trong `.env` để dùng AI
 | Lệnh | Tác dụng |
 |---|---|
 | `npm run dev` | Chạy app và `/api/analyze` trên máy |
-| `npm test` | Chạy 306 test tự động |
+| `npm test` | Chạy 325 test tự động |
 | `npm run build` | Build bản production |
 
 ## Deploy lên Vercel
@@ -85,17 +85,17 @@ Rule engine chọn gói nhỏ nhất đủ cho lượng khách. Shop bán hàng 
 
 ## Kiểm thử
 
-Chạy `npm test` trong thư mục `Frontend`. Kết quả hiện tại: **306/306 test đạt**.
+Chạy `npm test` trong thư mục `Frontend`. Kết quả hiện tại: **325/325 test đạt**.
 
 | File | Số test | Nội dung |
 |---|---:|---|
-| `ruleEngine.test.js` | 205 | Mọi tổ hợp lượt khách, loại website, ngân sách; chi phí; chuẩn hóa tên miền |
-| `validation.test.js` | 27 | Kiểm tra form nhu cầu, số điện thoại, email |
-| `analyze.test.js` | 22 | API: chặn dữ liệu sai, xử lý lỗi Gemini, tự gọi lại, không gửi chữ người dùng cho AI |
-| `aiValidator.test.js` | 17 | Từ chối phản hồi AI sai nghiệp vụ, link, mã HTML |
+| `ruleEngine.test.js` | 211 | Mọi tổ hợp lượt khách, loại website, ngân sách; số website cần chạy; chi phí; chuẩn hóa tên miền |
+| `validation.test.js` | 36 | Kiểm tra form nhu cầu (gồm ô tự nhập), số điện thoại, email |
+| `analyze.test.js` | 23 | API: chặn dữ liệu sai, xử lý lỗi Gemini, tự gọi lại, không gửi chữ người dùng cho AI |
+| `aiValidator.test.js` | 18 | Từ chối phản hồi AI sai nghiệp vụ (kể cả gói không đủ số website), link, mã HTML |
 | `services.test.js` | 11 | Dự phòng khi API lỗi, lưu khách hàng, xuất CSV an toàn |
 | `ConsultationModal.test.jsx` | 10 | Form đăng ký: kiểm tra dữ liệu, tính tổng tiền, lưu khách |
-| `NeedsSurveyForm.test.jsx` | 8 | Form nhu cầu: báo lỗi, ẩn hiện ô tên miền, nút Mẫu |
+| `NeedsSurveyForm.test.jsx` | 10 | Form nhu cầu: báo lỗi, ẩn hiện ô tên miền và ô tự nhập, nút Mẫu |
 | `authService.test.js` | 6 | Đăng nhập quản trị |
 
 Đã chạy thử với Gemini thật (`gemini-3.5-flash-lite`) ngày 02/11 và 07/11: các ca trong ngân sách và vượt ngân sách đều cho gói đúng nghiệp vụ, kèm cảnh báo đúng số tiền chênh lệch.
@@ -145,7 +145,8 @@ Một số vấn đề phát hiện được và cách xử lý:
 - Chưa giới hạn số lần gọi `/api/analyze`, cần đặt hạn mức cho API key trước khi công khai link lâu dài.
 - Lời giải thích của AI được kiểm tra định dạng, chặn link và mã HTML, nhưng chưa kiểm tra nghĩa từng câu.
 - AI có thể chọn gói lớn hơn mức cần nếu vẫn nằm trong ngân sách.
-- Ba ô số sản phẩm, số website, trình độ kỹ thuật là bắt buộc nhưng chưa ảnh hưởng tới gói được gợi ý.
+- Số website cần chạy quyết định gói tối thiểu, tối đa 10 website (giới hạn của gói lớn nhất). Số sản phẩm và trình độ kỹ thuật là bắt buộc nhưng chưa ảnh hưởng tới gói được gợi ý.
+- Nội dung ô "Khác" (loại website tự nhập) không gửi cho AI; AI và bộ quy tắc xử lý loại này như một website thông thường.
 - Đăng nhập quản trị chỉ để demo: kiểm tra mật khẩu trên trình duyệt, không phải bảo mật thật.
 - Danh sách khách hàng lưu trên trình duyệt theo yêu cầu đề bài, nên chỉ xem được trên chính thiết bị đó.
 - Khi Gemini quá tải kéo dài, app dùng bộ quy tắc dự phòng thay vì AI.
