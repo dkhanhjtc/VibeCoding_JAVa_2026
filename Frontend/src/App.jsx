@@ -1,17 +1,19 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, Suspense, lazy } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import Layout from './components/Layout.jsx';
 import NeedsSurveyForm from './components/NeedsSurveyForm.jsx';
 import { AIExplainerCard, DomainCard, CalloutBanner } from './components/RecommendationResult.jsx';
 import ComparisonTable from './components/ComparisonTable.jsx';
-import ConsultationModal from './components/ConsultationModal.jsx';
-import AdminLoginModal from './components/AdminLoginModal.jsx';
-import AdminDashboard from './components/AdminDashboard.jsx';
 import FAQAccordion from './components/FAQAccordion.jsx';
 import Skeleton from './components/Skeleton.jsx';
 import Toast from './components/Toast.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
+
+// Lazy load heavy components only when needed to optimize initial page load (<3s)
+const ConsultationModal = lazy(() => import('./components/ConsultationModal.jsx'));
+const AdminLoginModal = lazy(() => import('./components/AdminLoginModal.jsx'));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard.jsx'));
 
 import { requestHostingRecommendation } from './services/aiService.js';
 import { calculateRecommendation } from './shared/ruleEngine.js';
@@ -145,10 +147,18 @@ export function App() {
   if (currentView === 'admin') {
     return (
       <ErrorBoundary>
-        <AdminDashboard
-          onBackToHome={() => setCurrentView('home')}
-          onLogout={handleAdminLogout}
-        />
+        <Suspense
+          fallback={
+            <div className="min-h-screen bg-[#f0f4f8] flex items-center justify-center p-6">
+              <div className="w-8 h-8 border-4 border-[#3b7a8c] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          }
+        >
+          <AdminDashboard
+            onBackToHome={() => setCurrentView('home')}
+            onLogout={handleAdminLogout}
+          />
+        </Suspense>
         <Toast
           message={toastMessage}
           type={toastMessage?.type || 'success'}
@@ -267,21 +277,29 @@ export function App() {
         </section>
 
         {/* ----------------- POPUP MODAL ĐĂNG KÝ TƯ VẤN ----------------- */}
-        <ConsultationModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          packageData={selectedPackageForModal}
-          surveyData={formData}
-          domainRecommendation={recommendationData?.domainRecommendation}
-          onSuccess={handleConsultationSuccess}
-        />
+        {isModalOpen && (
+          <Suspense fallback={null}>
+            <ConsultationModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              packageData={selectedPackageForModal}
+              surveyData={formData}
+              domainRecommendation={recommendationData?.domainRecommendation}
+              onSuccess={handleConsultationSuccess}
+            />
+          </Suspense>
+        )}
 
         {/* ----------------- POPUP MODAL ĐĂNG NHẬP ADMIN ----------------- */}
-        <AdminLoginModal
-          isOpen={isAdminLoginOpen}
-          onClose={() => setIsAdminLoginOpen(false)}
-          onLoginSuccess={handleAdminLoginSuccess}
-        />
+        {isAdminLoginOpen && (
+          <Suspense fallback={null}>
+            <AdminLoginModal
+              isOpen={isAdminLoginOpen}
+              onClose={() => setIsAdminLoginOpen(false)}
+              onLoginSuccess={handleAdminLoginSuccess}
+            />
+          </Suspense>
+        )}
 
         {/* ----------------- TOAST THÔNG BÁO TỰ ĐỘNG TẮT ----------------- */}
         <Toast
